@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="JFXFramework/src"/>
+	<classpathentry kind="src" path="XMLUtils/src"/>
+	<classpathentry kind="src" path="resources"/>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="C:/Users/Jeremy/workspace/CSE 219/CSE 219 Buzzword/lib/jackson-annotations-2.8.2.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Jeremy/workspace/CSE 219/CSE 219 Buzzword/lib/jackson-annotations-2.8.2-javadoc.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Jeremy/workspace/CSE 219/CSE 219 Buzzword/lib/jackson-annotations-2.8.2-sources.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Jeremy/workspace/CSE 219/CSE 219 Buzzword/lib/jackson-core-2.8.2.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Jeremy/workspace/CSE 219/CSE 219 Buzzword/lib/jackson-core-2.8.2-javadoc.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Jeremy/workspace/CSE 219/CSE 219 Buzzword/lib/jackson-core-2.8.2-sources.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Jeremy/workspace/CSE 219/CSE 219 Buzzword/lib/jackson-databind-2.8.2.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Jeremy/workspace/CSE 219/CSE 219 Buzzword/lib/jackson-databind-2.8.2-javadoc.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Jeremy/workspace/CSE 219/CSE 219 Buzzword/lib/jackson-databind-2.8.2-sources.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
