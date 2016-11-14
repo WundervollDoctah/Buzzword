@@ -10,6 +10,7 @@ public class SceneManager {
 	public enum gameState {home, categorySelect, levelSelect, profileManagement, gameplay, gameEnd}
 	private static gameState currentGameState = gameState.home;
 	private Home home;
+	private LevelSelect levelSelect;
 	
 	public SceneManager(AppGUI gui){
 		this.gui = gui;

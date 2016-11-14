@@ -8,7 +8,11 @@ public abstract class BuzzScene {
 	protected ArrayList<BuzzObject> buzzObjects;
 	protected static ArrayList<BuzzObject> globalBuzzObjects = new ArrayList<>();
 	
-	public abstract void load();
+	public void load(){
+		for(BuzzObject bz : buzzObjects){
+			bz.loadNodes();
+		}
+	}
 	
 	public abstract void unload();
 	

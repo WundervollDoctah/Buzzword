@@ -2,8 +2,10 @@ package BuzzScene;
 
 import java.util.ArrayList;
 import Buzzword.BuzzObject;
+import javafx.collections.FXCollections;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
+import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
@@ -19,12 +21,12 @@ public class Home extends BuzzScene{
 	public Home(){
 		buzzObjects = new ArrayList<>();
 		generateSplashScreen();
-		//generateHomeScreen();
+		generateHomeScreen();
 	}
 	
 	private void generateSplashScreen(){
 		BuzzObject title = new BuzzObject("Title", new FlowPane(), 350, 50);
-		Label t = new Label("!!!BUZZWORD!!!");
+		Label t = new Label("!! BUZZWORD !!");
 		t.setTextFill(Color.WHITE);
 		t.setFont(Font.font(40));
 		title.addNode("Text", t);
@@ -49,8 +51,18 @@ public class Home extends BuzzScene{
 		BuzzObject b1 = find("Button1");
 		Button button1 = (Button)(b1.getNode("Button"));
 		button1.setText("ShujuLong");
+		BuzzObject gamemodeSelect = new BuzzObject("GameModeSelect", new FlowPane(), 100, 150);
+		ChoiceBox<String> cb = new ChoiceBox<>(FXCollections.observableArrayList(
+				"Select Mode", "English Dictionary", "Places", "Science", "Famous People")
+				);
+		cb.setValue("Select Mode");
+		cb.setMinWidth(120);
+		cb.setStyle("-fx-base: dimgray");
+		gamemodeSelect.addNode("ChoiceBox", cb);
+		buzzObjects.add(gamemodeSelect);
+		//gamemodeSelect.loadNodes();
 		BuzzObject b2 = find("Button2");
-		b2.setY(300);
+		b2.setY(200);
 		Button button2 = (Button)(b2.getNode("Button"));
 		button2.setText("Start Playing");
 	}
