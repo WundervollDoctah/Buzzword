@@ -31,57 +31,42 @@ public class Home extends BuzzScene{
 	public BuzzObject levelSelect = new BuzzObject("LevelSelect", new FlowPane(), 300, 20);
 	public BuzzObject gameplay = new BuzzObject("Gameplay", new FlowPane(), 400, 20);
 	
+	private boolean loginUp = false;
+	private double btn2Pos = 150;
+	
 	public Home(){
+		BuzzObject exit = new BuzzObject("Exit", new FlowPane(), 775, 0);
+		Button exitB = new Button("X");
+		exitB.setStyle("-fx-base: dimgrey");
+		exit.addNode("Button", exitB);
+		addGlobal(exit);
 		buzzObjects = new ArrayList<>();
 		profileObjects = new ArrayList<>();
 		generateSplashScreen();
 		generateLoginScreen();
 		//generateHomeScreen();
 		Button homeB = new Button("Home");
-		homeB.setOnAction(e -> new EventHandler<ActionEvent>() {
-
-			@Override
-			public void handle(ActionEvent arg0) {
-				if(find("GameModeSelect") != null)
-					generateHomeScreen();
-				if(Workspace.getSM().getHome().equals(Workspace.getSM().getScene()))
-					Workspace.getSM().loadScene(Workspace.getSM().getHome());
-				
-			}
-			
+		homeB.setOnAction(e -> {
+			if(find("GameModeSelect") == null)
+				generateHomeScreen();
+			//if(Workspace.getSM().getHome().equals(Workspace.getSM().getScene()))
+				Workspace.getSM().loadScene(Workspace.getSM().getHome());
 		});
 		home.addNode("Button", homeB);
 		Button levelB = new Button("Level");
-		levelB.setOnAction(e -> new EventHandler<ActionEvent>() {
-
-			@Override
-			public void handle(ActionEvent arg0) {
+		levelB.setOnAction(e -> {
 				Workspace.getSM().loadScene(Workspace.getSM().getLevelSelect());
-				
-			}
-			
 		});
 		levelSelect.addNode("Button", levelB);
 		Button profileB = new Button("Profile");
-		profileB.setOnAction(e -> new EventHandler<ActionEvent>() {
-
-			@Override
-			public void handle(ActionEvent arg0) {
+		profileB.setOnAction(e -> {
+			if(!loginUp && Workspace.getSM().getHome().equals(Workspace.getSM().getScene()))
 				loadLogin();
-				
-			}
-			
 		});
 		profile.addNode("Button", profileB);
 		Button gameplayB = new Button("Gameplay");
-		gameplayB.setOnAction(e -> new EventHandler<ActionEvent>() {
-
-			@Override
-			public void handle(ActionEvent arg0) {
-				Workspace.getSM().loadScene(Workspace.getSM().getGameplay());
-				
-			}
-			
+		gameplayB.setOnAction(e -> {
+			Workspace.getSM().loadScene(Workspace.getSM().getGameplay());
 		});
 		gameplay.addNode("Button", gameplayB);
 		addGlobal(home);
@@ -91,6 +76,7 @@ public class Home extends BuzzScene{
 	}
 	
 	private void generateSplashScreen(){
+		unloadLogin();
 		BuzzObject title = new BuzzObject("Title", new FlowPane(), 325, 50);
 		Label t = new Label("!! BUZZWORD !!");
 		t.setTextFill(Color.WHITE);
@@ -117,6 +103,8 @@ public class Home extends BuzzScene{
 	}
 	
 	private void generateHomeScreen(){
+		unloadLogin();
+		btn2Pos = 200;
 		BuzzObject b1 = find("Button1");
 		Button button1 = (Button)(b1.getNode("Button"));
 		button1.setText("ShujuLong");
@@ -131,7 +119,7 @@ public class Home extends BuzzScene{
 		buzzObjects.add(gamemodeSelect);
 		//gamemodeSelect.loadNodes();
 		BuzzObject b2 = find("Button2");
-		b2.setY(200);
+		b2.setY(btn2Pos);
 		Button button2 = (Button)(b2.getNode("Button"));
 		button2.setText("Start Playing");
 	}
@@ -152,25 +140,34 @@ public class Home extends BuzzScene{
 
 	@Override
 	public void load() {
+		unloadLogin();
 		for(BuzzObject bz : buzzObjects){
 			bz.loadNodes();
 		}
+		BuzzObject b2 = find("Button2");
+		b2.setY(btn2Pos);
+		Button button2 = (Button)(b2.getNode("Button"));
+		if(b2.getY() == 200)
+			button2.setText("Start Playing");
 	}
 	
 	public void loadLogin(){
 		for(BuzzObject bz : profileObjects){
 			bz.loadNodes();
 		}
+		loginUp = true;
 	}
 	
 	public void unloadLogin(){
 		for(BuzzObject bz : profileObjects){
 			bz.unloadNodes();
 		}
+		loginUp = false;
 	}
 
 	@Override
 	public void unload() {
+		unloadLogin();
 		for(BuzzObject bz : buzzObjects){
 			bz.unloadNodes();
 		}

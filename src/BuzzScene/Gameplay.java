@@ -55,7 +55,9 @@ public class Gameplay extends BuzzScene {
 		BuzzObject playPause = new BuzzObject("PlayPause", new FlowPane(), 200, 500);
 		Polygon triangle = new Polygon(0, 0, 0, 30, 15, 15);
 		triangle.setFill(Color.WHITESMOKE);
-		playPause.addNode("Triangle", triangle);
+		Button playPauseB = new Button("", triangle);
+		playPauseB.setStyle("-fx-base: dimgrey");
+		playPause.addNode("Triangle", playPauseB);
 		buzzObjects.add(playPause);
 		
 		BuzzObject letters = new BuzzObject("Letters", new StackPane(), 675, 180);
@@ -70,6 +72,16 @@ public class Gameplay extends BuzzScene {
 		BuzzScores buzzScores = new BuzzScores("Scores", 625, 200);
 		buzzScores.constructBuzzScores();
 		buzzObjects.add(buzzScores);
+		
+		BuzzObject targetRect = new BuzzObject("TargetRect", new FlowPane(), 630, 470);
+		targetRect.addNode("Rect", new Rectangle(100, 50));
+		buzzObjects.add(targetRect);
+		
+		BuzzObject targetScore = new BuzzObject("TargetScore", new FlowPane(), 640, 480);
+		Text targetText = new Text("Target:\n 73 Points");
+		targetText.setFill(Color.WHITESMOKE);
+		targetScore.addNode("Text", targetText);
+		buzzObjects.add(targetScore);
 	}
 	
 	@Override

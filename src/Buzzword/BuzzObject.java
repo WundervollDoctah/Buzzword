@@ -113,7 +113,8 @@ public class BuzzObject{
 	
 	public void loadNodes(){
 		for(NodeName n : nodes){
-			pane.getChildren().add(n.node);	
+			if(!pane.getChildren().contains(n.node))
+				pane.getChildren().add(n.node);	
 		}
 		Workspace.getSM().getGUI().getAppPane().getChildren().add(pane);
 		alignNodes();
