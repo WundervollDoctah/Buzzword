@@ -7,10 +7,11 @@ public class SceneManager {
 	
 	private AppGUI gui;
 	private BuzzScene scene = null;
-	public enum gameState {home, categorySelect, levelSelect, profileManagement, gameplay, gameEnd}
-	private static gameState currentGameState = gameState.home;
+	public enum gameState {splash, home, categorySelect, levelSelect, profileManagement, gameplay, gameEnd}
+	private static gameState currentGameState = gameState.splash;
 	private Home home;
 	private LevelSelect levelSelect;
+	private Gameplay gameplay;
 	
 	public SceneManager(AppGUI gui){
 		this.gui = gui;
@@ -18,8 +19,14 @@ public class SceneManager {
 	
 	public void createScenes(){
 		home = new Home();
+		levelSelect = new LevelSelect();
+		gameplay = new Gameplay();
 	}
 	
+	public LevelSelect getLevelSelect() {
+		return levelSelect;
+	}
+
 	public void loadScene(BuzzScene newScene){
 		if(scene != null){
 			scene.unload();
@@ -39,5 +46,9 @@ public class SceneManager {
 	}
 	public AppGUI getGUI() {
 		return gui;
+	}
+
+	public Gameplay getGameplay() {
+		return gameplay;
 	}
 }

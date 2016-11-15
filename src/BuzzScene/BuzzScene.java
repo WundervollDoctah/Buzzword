@@ -14,7 +14,11 @@ public abstract class BuzzScene {
 		}
 	}
 	
-	public abstract void unload();
+	public void unload() {
+		for(BuzzObject bz : buzzObjects){
+			bz.unloadNodes();
+		}
+	}
 	
 	public void addGlobal(BuzzObject bz){
 		globalBuzzObjects.add(bz);

@@ -26,6 +26,8 @@ public class Workspace extends AppWorkspaceComponent{
 	
 	public void layoutGUI(){
 		sm.loadScene(sm.getHome());
+		//sm.loadScene(sm.getLevelSelect());
+		//sm.loadScene(sm.getGameplay());
 	}
 	
 	@Override

@@ -13,10 +13,10 @@ import gui.Workspace;
 public class BuzzObject{
 	
 	private BuzzObject parent;
-	private Pane pane; //Pane to place objects in
+	protected Pane pane; //Pane to place objects in
 	private String name;
-	private double x;
-	private double y;
+	protected double x;
+	protected double y;
 	private ArrayList<NodeName> nodes = new ArrayList<>();
 	private ArrayList<BuzzObject> children = new ArrayList<>();
 	
@@ -113,16 +113,20 @@ public class BuzzObject{
 	
 	public void loadNodes(){
 		for(NodeName n : nodes){
-			pane.getChildren().add(n.node);
-			Workspace.getSM().getGUI().getAppPane().getChildren().add(pane);
+			pane.getChildren().add(n.node);	
 		}
+		Workspace.getSM().getGUI().getAppPane().getChildren().add(pane);
 		alignNodes();
+	}
+	
+	public void unloadNodes(){
+		Workspace.getSM().getGUI().getAppPane().getChildren().remove(pane);
 	}
 	
 	public boolean removeNode(Node n){
 		int index = findNode(n);
 		if(index >= 0)
-			return nodes.remove(n);
+			return nodes.remove(index).node == n;
 		return false;
 	}
 	
