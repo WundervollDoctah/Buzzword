@@ -3,6 +3,8 @@ package BuzzScene;
 import BuzzScene.BuzzScene;
 import ui.AppGUI;
 
+//@author Jeremy Chu
+
 public class SceneManager {
 	
 	private AppGUI gui;

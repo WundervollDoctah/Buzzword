@@ -10,6 +10,8 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.*;
 import propertymanager.PropertyManager;
 
+//@author Jeremy Chu
+
 public class Workspace extends AppWorkspaceComponent{
 
 	private AppTemplate app;

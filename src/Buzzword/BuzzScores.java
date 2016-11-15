@@ -10,6 +10,8 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 
+//@author Jeremy Chu
+
 public class BuzzScores extends BuzzObject {
 	
 	public StackPane wordsPane;

@@ -22,6 +22,8 @@ import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 
+//@author Jeremy Chu
+
 public class Home extends BuzzScene{
 	
 	ArrayList<BuzzObject> profileObjects;
@@ -110,7 +112,7 @@ public class Home extends BuzzScene{
 		button1.setText("ShujuLong");
 		BuzzObject gamemodeSelect = new BuzzObject("GameModeSelect", new FlowPane(), 100, 150);
 		ChoiceBox<String> cb = new ChoiceBox<>(FXCollections.observableArrayList(
-				"Select Mode", "English Dictionary", "Places", "Science", "Famous People")
+				"Select Mode", "English Dictionary", "Places", "Science", "Sanic Memes")
 				);
 		cb.setValue("Select Mode");
 		cb.setMinWidth(120);

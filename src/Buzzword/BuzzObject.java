@@ -10,6 +10,8 @@ import java.util.ArrayList;
 import BuzzScene.SceneManager;
 import gui.Workspace;
 
+//@author Jeremy Chu
+
 public class BuzzObject{
 	
 	private BuzzObject parent;

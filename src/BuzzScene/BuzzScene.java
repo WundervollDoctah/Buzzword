@@ -3,6 +3,8 @@ package BuzzScene;
 import java.util.ArrayList;
 import Buzzword.BuzzObject;
 
+//@author Jeremy Chu
+
 public abstract class BuzzScene {
 	
 	protected ArrayList<BuzzObject> buzzObjects;

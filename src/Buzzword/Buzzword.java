@@ -9,6 +9,8 @@ import components.AppFileComponent;
 import components.AppWorkspaceComponent;
 import gui.Workspace;
 
+//@author Jeremy Chu
+
 public class Buzzword extends AppTemplate{
 		
 	public static void main(String[] args) {

@@ -6,6 +6,8 @@ import java.nio.file.Path;
 import components.AppDataComponent;
 import components.AppFileComponent;
 
+//@author Jeremy Chu
+
 public class ProfileManager implements AppFileComponent{
 
 	@Override

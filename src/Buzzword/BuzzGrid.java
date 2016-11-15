@@ -10,6 +10,8 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.shape.Circle;
 
+//@author Jeremy Chu
+
 public class BuzzGrid extends BuzzObject {
 	
 	private GridPane grid;
