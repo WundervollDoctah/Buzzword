@@ -1,10 +1,13 @@
 package BuzzScene;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import javafx.event.ActionEvent;
 
 import Buzzword.BuzzGrid;
 import Buzzword.BuzzObject;
+import Profile.ProfileException;
+import Profile.ProfileManager;
 import gui.Workspace;
 import javafx.collections.FXCollections;
 import javafx.event.EventHandler;
@@ -21,6 +24,7 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
+import ui.AppMessageDialogSingleton;
 
 //@author Jeremy Chu
 
@@ -40,6 +44,9 @@ public class Home extends BuzzScene{
 		BuzzObject exit = new BuzzObject("Exit", new FlowPane(), 775, 0);
 		Button exitB = new Button("X");
 		exitB.setStyle("-fx-base: dimgrey");
+		exitB.setOnAction(e -> {
+			System.exit(0);
+		});
 		exit.addNode("Button", exitB);
 		addGlobal(exit);
 		buzzObjects = new ArrayList<>();
@@ -78,7 +85,7 @@ public class Home extends BuzzScene{
 	}
 	
 	private void generateSplashScreen(){
-		unloadLogin();
+		//unloadLogin();
 		BuzzObject title = new BuzzObject("Title", new FlowPane(), 325, 50);
 		Label t = new Label("!! BUZZWORD !!");
 		t.setTextFill(Color.WHITE);
@@ -87,6 +94,11 @@ public class Home extends BuzzScene{
 		addGlobal(title);
 		BuzzObject profileButton = new BuzzObject("Button1", new FlowPane(), 100, 100);
 		Button nP = new Button("Create New Profile");
+		nP.setOnAction(e -> {
+			loadLogin();
+			find("CreateProfile").<Button>getNode("Button").setVisible(true);
+			find("LoginButton").<Button>getNode("Button").setVisible(false);
+		});
 		nP.setMinWidth(120);
 		nP.setStyle("-fx-base: dimgray");
 		nP.setAlignment(Pos.CENTER_LEFT);
@@ -94,6 +106,11 @@ public class Home extends BuzzScene{
 		addGlobal(profileButton);
 		BuzzObject loginButton = new BuzzObject("Button2", new FlowPane(), 100, 150);
 		Button login = new Button("Login");
+		login.setOnAction(e -> {
+			loadLogin();
+			find("CreateProfile").<Button>getNode("Button").setVisible(false);
+			find("LoginButton").<Button>getNode("Button").setVisible(true);
+		});
 		login.setMinWidth(120);
 		login.setStyle("-fx-base: dimgray");
 		login.setAlignment(Pos.CENTER_LEFT);
@@ -112,9 +129,17 @@ public class Home extends BuzzScene{
 		button1.setText("ShujuLong");
 		BuzzObject gamemodeSelect = new BuzzObject("GameModeSelect", new FlowPane(), 100, 150);
 		ChoiceBox<String> cb = new ChoiceBox<>(FXCollections.observableArrayList(
-				"Select Mode", "English Dictionary", "Places", "Science", "Sanic Memes")
-				);
+			"Select Mode", "English Dictionary", "Places", "Science", "Sanic Memes")
+		);		
 		cb.setValue("Select Mode");
+		cb.getSelectionModel().selectedItemProperty().addListener(e -> {
+			System.out.println(cb.getSelectionModel().getSelectedItem());
+			Workspace.getSM().gamemode = cb.getSelectionModel().getSelectedItem();
+			if(Workspace.getSM().gamemode.equals("Select Mode"))
+				find("Button2").<Button>getNode("Button").setDisable(true);
+			else
+				find("Button2").<Button>getNode("Button").setDisable(false);
+		});
 		cb.setMinWidth(120);
 		cb.setStyle("-fx-base: dimgray");
 		gamemodeSelect.addNode("ChoiceBox", cb);
@@ -122,22 +147,100 @@ public class Home extends BuzzScene{
 		//gamemodeSelect.loadNodes();
 		BuzzObject b2 = find("Button2");
 		b2.setY(btn2Pos);
-		Button button2 = (Button)(b2.getNode("Button"));
-		button2.setText("Start Playing");
+		Button button2 = b2.<Button>getNode("Button");
+		button2.setText("Start Playing");	
+		button2.setOnAction(e -> {
+			Workspace.getSM().loadScene(Workspace.getSM().getLevelSelect());
+		});
+		button2.setDisable(true);
 	}
 	
 	private void generateLoginScreen(){
+		ProfileManager.getProfileManager();
 		BuzzObject rectangle = new BuzzObject("LoginSquare", new FlowPane(), 300, 200);
 		rectangle.addNode("Rectangle", new Rectangle(300, 100));
 		profileObjects.add(rectangle);
-		BuzzObject username = new BuzzObject("UserName", new FlowPane(), 350, 200);
-		username.addNode("Label", new Label("Username: "));
+		BuzzObject username = new BuzzObject("Username", new FlowPane(), 350, 200);
+		Label usernameText = new Label("Username: ");
+		usernameText.setTextFill(Color.WHITE);
+		username.addNode("Label", usernameText);
 		username.addNode("TextField", new TextField());
 		profileObjects.add(username);
 		BuzzObject password = new BuzzObject("Password", new FlowPane(), 350, 250);
-		password.addNode("Label", new Label("Password: "));
+		Label passwordText = new Label("Password: ");
+		passwordText.setTextFill(Color.WHITE);
+		password.addNode("Label", passwordText);
 		password.addNode("TextField", new PasswordField());
 		profileObjects.add(password);
+		BuzzObject createProfile = new BuzzObject("CreateProfile", new FlowPane(), 350, 300);
+		Button createProfileButton = new Button("Create Profile");
+		createProfileButton.setOnAction(e -> { createProfile(); });
+		createProfile.addNode("Button", createProfileButton);
+		profileObjects.add(createProfile);
+		BuzzObject login = new BuzzObject("LoginButton", new FlowPane(), 450, 300);
+		Button loginButton = new Button("Login");
+		loginButton.setOnAction(e -> { login(); });
+		login.addNode("Button", loginButton);
+		profileObjects.add(login);
+		BuzzObject closeLogin = new BuzzObject("CloseLogin", new FlowPane(), 575, 200);
+		Button clb = new Button("X");
+		clb.setStyle("-fx-base: dimgray");
+		clb.setOnAction(e -> {
+			unloadLogin();
+		});
+		closeLogin.addNode("Button", clb);
+		profileObjects.add(closeLogin);
+	}
+	
+	private void createProfile(){
+		ProfileManager profileManager = ProfileManager.getProfileManager();
+		String username = find("Username").<TextField>getNode("TextField").getText();
+		String password = find("Password").<PasswordField>getNode("TextField").getText();
+		try{
+			if(profileManager.createData(username, password)){
+				unloadLogin();
+				find("Button1").<Button>getNode("Button").setDisable(false);
+				find("Button2").<Button>getNode("Button").setDisable(false);
+				generateHomeScreen();
+				Workspace.getSM().loadScene(Workspace.getSM().getHome());
+				Button profileButton = find("Button1").<Button>getNode("Button");
+				profileButton.setText(ProfileManager.getProfileManager().getLoadedProfile().getUsername());
+				profileButton.setOnAction(e -> {
+					
+				});
+			}
+			else
+				AppMessageDialogSingleton.getSingleton().show("Profile Exists", "Profile already exists");
+		}
+		catch(IOException ex){
+			ex.printStackTrace();
+		}
+	}
+	
+	private void login(){
+		ProfileManager profileManager = ProfileManager.getProfileManager();
+		String username = find("Username").<TextField>getNode("TextField").getText();
+		String password = find("Password").<PasswordField>getNode("TextField").getText();
+		try{
+			if(profileManager.loadProfile(username, password)){
+				unloadLogin();
+				find("Button1").<Button>getNode("Button").setDisable(false);
+				find("Button2").<Button>getNode("Button").setDisable(false);
+				generateHomeScreen();
+				Workspace.getSM().loadScene(Workspace.getSM().getHome());
+				Button profileButton = find("Button1").<Button>getNode("Button");
+				profileButton.setText(ProfileManager.getProfileManager().getLoadedProfile().getUsername());
+				profileButton.setOnAction(e -> {
+					
+				});
+			}
+		}
+		catch(IOException ex){
+			ex.printStackTrace();
+		}
+		catch(ProfileException ex){
+			System.out.println(ex.getMessage());;
+		}
 	}
 
 	@Override
@@ -149,11 +252,20 @@ public class Home extends BuzzScene{
 		BuzzObject b2 = find("Button2");
 		b2.setY(btn2Pos);
 		Button button2 = (Button)(b2.getNode("Button"));
-		if(b2.getY() == 200)
+		if(b2.getY() == 200){
 			button2.setText("Start Playing");
+			button2.setOnAction(e -> {
+				Workspace.getSM().loadScene(Workspace.getSM().getLevelSelect());
+			});
+		}
 	}
 	
 	public void loadLogin(){
+		find("Button1").<Button>getNode("Button").setDisable(true);
+		find("Button2").<Button>getNode("Button").setDisable(true);
+		BuzzObject gms = find("GameModeSelect");
+		if(gms != null)
+			gms.<ChoiceBox>getNode("ChoiceBox").setDisable(true);
 		for(BuzzObject bz : profileObjects){
 			bz.loadNodes();
 		}
@@ -161,6 +273,12 @@ public class Home extends BuzzScene{
 	}
 	
 	public void unloadLogin(){
+		find("Button1").<Button>getNode("Button").setDisable(false);
+		if(!Workspace.getSM().gamemode.equals("Select Mode"))
+			find("Button2").<Button>getNode("Button").setDisable(false);
+		BuzzObject gms = find("GameModeSelect");
+		if(gms != null)
+			gms.<ChoiceBox>getNode("ChoiceBox").setDisable(false);
 		for(BuzzObject bz : profileObjects){
 			bz.unloadNodes();
 		}
@@ -173,6 +291,23 @@ public class Home extends BuzzScene{
 		for(BuzzObject bz : buzzObjects){
 			bz.unloadNodes();
 		}
+	}
+	
+	@Override
+	public BuzzObject find(String name){
+		for(BuzzObject bz : buzzObjects){
+			if(bz.getName().equals(name))
+				return bz;
+		}
+		for(BuzzObject bz : profileObjects){
+			if(bz.getName().equals(name))
+				return bz;
+		}
+		for(BuzzObject bz : globalBuzzObjects){
+			if(bz.getName().equals(name))
+				return bz;
+		}
+		return null;
 	}
 
 }

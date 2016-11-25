@@ -5,6 +5,12 @@ import components.AppDataComponent;
 //@author Jeremy Chu
 
 public class Profile implements AppDataComponent{
+	
+	String username;
+	
+	public Profile(){
+		username = null;
+	}
 
 	@Override
 	public void reset() {
@@ -12,4 +18,7 @@ public class Profile implements AppDataComponent{
 		
 	}
 
+	public String getUsername() {
+		return username;
+	}
 }

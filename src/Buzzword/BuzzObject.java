@@ -80,20 +80,31 @@ public class BuzzObject{
 		this.y = y;
 		alignNodes();
 	}
-
-	public <T> T getNode(Class<T> c) {
+	
+	public Pane getPane() {
+		return pane;
+	}
+	
+	/*public <T> T getNode(Class<T> c) {
 		for(NodeName n : nodes){
 			if(n.node.getClass() == c){
 				return (T) n.node;
 			}
 		}
 		return null;
-	}
+	}*/
 	
-	public Node getNode(String name){
+	/*public Node getNode(String name){
 		int index = findNode(name);
 		if(index >= 0)
 			return nodes.get(index).node;
+		return null;
+	}*/
+
+	public <T> T getNode(String name){
+		int index = findNode(name);
+		if(index >= 0)
+			return (T) nodes.get(index).node;
 		return null;
 	}
 	

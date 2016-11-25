@@ -14,6 +14,7 @@ public class SceneManager {
 	private Home home;
 	private LevelSelect levelSelect;
 	private Gameplay gameplay;
+	String gamemode = "Select Mode";
 	
 	public SceneManager(AppGUI gui){
 		this.gui = gui;
