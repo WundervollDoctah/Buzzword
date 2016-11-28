@@ -9,12 +9,13 @@ public class SceneManager {
 	
 	private AppGUI gui;
 	private BuzzScene scene = null;
-	public enum gameState {splash, home, categorySelect, levelSelect, profileManagement, gameplay, gameEnd}
-	private static gameState currentGameState = gameState.splash;
+	public enum gameState {splash, home, levelSelect, profileManagement, gameplay, gameEnd}
+	static gameState currentGameState = gameState.splash;
 	private Home home;
 	private LevelSelect levelSelect;
 	private Gameplay gameplay;
 	String gamemode = "Select Mode";
+	int difficulty = 1;
 	
 	public SceneManager(AppGUI gui){
 		this.gui = gui;
@@ -53,5 +54,13 @@ public class SceneManager {
 
 	public Gameplay getGameplay() {
 		return gameplay;
+	}
+	
+	public int getDifficulty(){
+		return difficulty;
+	}
+	
+	public void setDifficulty(int value){
+		difficulty = value;
 	}
 }

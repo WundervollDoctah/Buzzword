@@ -20,6 +20,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Polygon;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
@@ -133,17 +134,13 @@ public class Home extends BuzzScene{
 		);		
 		cb.setValue("Select Mode");
 		cb.getSelectionModel().selectedItemProperty().addListener(e -> {
-			System.out.println(cb.getSelectionModel().getSelectedItem());
-			Workspace.getSM().gamemode = cb.getSelectionModel().getSelectedItem();
-			if(Workspace.getSM().gamemode.equals("Select Mode"))
-				find("Button2").<Button>getNode("Button").setDisable(true);
-			else
-				find("Button2").<Button>getNode("Button").setDisable(false);
+			checkChoice(cb);
 		});
 		cb.setMinWidth(120);
 		cb.setStyle("-fx-base: dimgray");
 		gamemodeSelect.addNode("ChoiceBox", cb);
 		buzzObjects.add(gamemodeSelect);
+		checkChoice(cb);
 		//gamemodeSelect.loadNodes();
 		BuzzObject b2 = find("Button2");
 		b2.setY(btn2Pos);
@@ -230,6 +227,16 @@ public class Home extends BuzzScene{
 				Workspace.getSM().loadScene(Workspace.getSM().getHome());
 				Button profileButton = find("Button1").<Button>getNode("Button");
 				profileButton.setText(ProfileManager.getProfileManager().getLoadedProfile().getUsername());
+				Polygon arrow = new Polygon(new double[]{
+						0,5,
+						0,15,
+						10,15,
+						10,20,
+						20,10,
+						10,0,
+						10,5});
+				arrow.setFill(Color.WHITESMOKE);
+				profileButton.setGraphic(arrow);
 				profileButton.setOnAction(e -> {
 					
 				});
@@ -241,6 +248,15 @@ public class Home extends BuzzScene{
 		catch(ProfileException ex){
 			System.out.println(ex.getMessage());;
 		}
+	}
+	
+	private void checkChoice(ChoiceBox<String> cb){
+		System.out.println(cb.getSelectionModel().getSelectedItem());
+		Workspace.getSM().gamemode = cb.getSelectionModel().getSelectedItem();
+		if(Workspace.getSM().gamemode.equals("Select Mode"))
+			find("Button2").<Button>getNode("Button").setDisable(true);
+		else
+			find("Button2").<Button>getNode("Button").setDisable(false);
 	}
 
 	@Override
@@ -265,7 +281,7 @@ public class Home extends BuzzScene{
 		find("Button2").<Button>getNode("Button").setDisable(true);
 		BuzzObject gms = find("GameModeSelect");
 		if(gms != null)
-			gms.<ChoiceBox>getNode("ChoiceBox").setDisable(true);
+			gms.<ChoiceBox<String>>getNode("ChoiceBox").setDisable(true);
 		for(BuzzObject bz : profileObjects){
 			bz.loadNodes();
 		}
@@ -274,11 +290,6 @@ public class Home extends BuzzScene{
 	
 	public void unloadLogin(){
 		find("Button1").<Button>getNode("Button").setDisable(false);
-		if(!Workspace.getSM().gamemode.equals("Select Mode"))
-			find("Button2").<Button>getNode("Button").setDisable(false);
-		BuzzObject gms = find("GameModeSelect");
-		if(gms != null)
-			gms.<ChoiceBox>getNode("ChoiceBox").setDisable(false);
 		for(BuzzObject bz : profileObjects){
 			bz.unloadNodes();
 		}

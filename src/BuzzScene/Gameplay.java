@@ -2,9 +2,11 @@ package BuzzScene;
 
 import java.util.ArrayList;
 
+import BuzzScene.SceneManager.gameState;
 import Buzzword.BuzzGrid;
 import Buzzword.BuzzObject;
 import Buzzword.BuzzScores;
+import gui.Workspace;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.FlowPane;
@@ -28,7 +30,7 @@ public class Gameplay extends BuzzScene {
 	
 	public void generateGameplay(){
 		BuzzObject gamemodeTitle = new BuzzObject("GamemodeTitle", new FlowPane(), 375, 125);
-		Label gmt = new Label("Sanic Memes");
+		Label gmt = new Label(Workspace.getSM().gamemode);
 		gmt.setTextFill(Color.WHITESMOKE);
 		gmt.setFont(Font.font(30));
 		gamemodeTitle.addNode("Label", gmt);
@@ -43,12 +45,12 @@ public class Gameplay extends BuzzScene {
 		time.addNode("Label", timeLabel);
 		buzzObjects.add(time);
 		
-		BuzzGrid grid = new BuzzGrid("MemeGrid", 450, 310);
-		grid.constructMemeGrid(4, 4);
+		BuzzGrid grid = new BuzzGrid("GameGrid", 450, 310);
+		grid.constructGameGrid(4, 4);
 		buzzObjects.add(grid);
 		
 		BuzzObject level = new BuzzObject("Level", new FlowPane(), 420, 500);
-		Label levelLabel = new Label("Level 4");
+		Label levelLabel = new Label("Level " + Workspace.getSM().difficulty);
 		levelLabel.setFont(Font.font(30));
 		levelLabel.setTextFill(Color.WHITESMOKE);
 		level.addNode("Label", levelLabel);
@@ -88,9 +90,13 @@ public class Gameplay extends BuzzScene {
 	
 	@Override
 	public void load(){
+		SceneManager.currentGameState = gameState.gameplay;
 		super.load();
 		BuzzObject home = find("Button2");
 		home.setY(150);
 		((Button)home.getNode("Button")).setText("Home");
+		((BuzzGrid)find("GameGrid")).generateGrid();
+		find("GamemodeTitle").<Label>getNode("Label").setText(Workspace.getSM().gamemode);
+		find("Level").<Label>getNode("Label").setText("Level " + Workspace.getSM().difficulty);
 	}
 }

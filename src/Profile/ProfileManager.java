@@ -25,7 +25,7 @@ public class ProfileManager implements AppFileComponent{
 	private final String PASSWORD = "password";
 	
 	public ProfileManager(){
-		loadedProfile = new Profile();
+		loadedProfile = null;
 	}
 	
 	public boolean createData(String username, String password) throws IOException{
@@ -86,8 +86,10 @@ public class ProfileManager implements AppFileComponent{
 				}
 			}
 		}
-		if(!profileSet)
+		if(!profileSet){
+			loadedProfile = null;
 			throw new ProfileException("invalid username or password");
+		}
 		return profileSet;
 	}
 
