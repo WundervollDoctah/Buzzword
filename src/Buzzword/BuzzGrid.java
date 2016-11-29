@@ -11,6 +11,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
+import BuzzScene.Home;
+import Profile.ProfileManager;
 import gui.Workspace;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -34,6 +36,7 @@ public class BuzzGrid extends BuzzObject {
 	private ArrayList<String> foundWords;
 	private int gridWidth;
 	private int gridHeight;
+	private Canvas canvas;
 
 	public BuzzGrid(String name) {
 		this(name, 0, 0);
@@ -101,6 +104,17 @@ public class BuzzGrid extends BuzzObject {
 		}
 	}
 	
+	public void reloadLevels(){
+		for(Node button : grid.getChildren()){
+			int maxLevel = Integer.parseInt(((Button)button).getText());
+			if(maxLevel <= ProfileManager.getProfileManager().getLoadedProfile().getGamemodeProgress(Workspace.getSM().getGamemode())){
+				((Button)button).setDisable(false);
+			}
+			else
+				((Button)button).setDisable(true);
+		}
+	}
+	
 	public void constructGameGrid(int width, int height){
 		grid.getChildren().clear();
 		gridWidth = width;
@@ -140,7 +154,7 @@ public class BuzzGrid extends BuzzObject {
 	}
 	
 	public void generateGrid(){
-		int targetScore = 50 + Workspace.getSM().getDifficulty() * 5;
+		int targetScore = 50 + (Workspace.getSM().getDifficulty() - 1) * 10;
 		int maxScore = 0;
 		while(maxScore < targetScore){
 			foundWords = new ArrayList<>();
@@ -229,5 +243,9 @@ public class BuzzGrid extends BuzzObject {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+	
+	public void setVisible(boolean value){
+		pane.setVisible(value);
 	}
 }

@@ -21,10 +21,13 @@ import javafx.scene.text.Text;
 
 public class Gameplay extends BuzzScene {
 
-	
+	private boolean paused;
+	private boolean quitPaused;
 	
 	public Gameplay(){
 		buzzObjects = new ArrayList<>();
+		paused = false;
+		quitPaused = false;
 		generateGameplay();
 	}
 	
@@ -57,11 +60,20 @@ public class Gameplay extends BuzzScene {
 		buzzObjects.add(level);
 		
 		BuzzObject playPause = new BuzzObject("PlayPause", new FlowPane(), 200, 500);
-		Polygon triangle = new Polygon(0, 0, 0, 30, 15, 15);
+		Polygon triangle = new Polygon(0, 0, 0, 30, 20, 15);
 		triangle.setFill(Color.WHITESMOKE);
-		Button playPauseB = new Button("", triangle);
+		Rectangle square = new Rectangle(30,30);
+		square.setFill(Color.WHITESMOKE);
+		Button playPauseB = new Button("", square);
 		playPauseB.setStyle("-fx-base: dimgrey");
-		playPause.addNode("Triangle", playPauseB);
+		playPauseB.setOnAction(e -> {
+			playPause();
+			if(paused)
+				playPauseB.setGraphic(triangle);
+			else
+				playPauseB.setGraphic(square);
+		});
+		playPause.addNode("Button", playPauseB);
 		buzzObjects.add(playPause);
 		
 		BuzzObject letters = new BuzzObject("Letters", new StackPane(), 675, 180);
@@ -82,10 +94,16 @@ public class Gameplay extends BuzzScene {
 		buzzObjects.add(targetRect);
 		
 		BuzzObject targetScore = new BuzzObject("TargetScore", new FlowPane(), 640, 480);
-		Text targetText = new Text("Target:\n 73 Points");
+		Text targetText = new Text("Target:\n " + (50 + (Workspace.getSM().difficulty - 1) * 10) + " Points");
 		targetText.setFill(Color.WHITESMOKE);
 		targetScore.addNode("Text", targetText);
 		buzzObjects.add(targetScore);
+	}
+	
+	@Override
+	public void unload(){
+		super.unload();
+		paused = false;
 	}
 	
 	@Override
@@ -98,5 +116,42 @@ public class Gameplay extends BuzzScene {
 		((BuzzGrid)find("GameGrid")).generateGrid();
 		find("GamemodeTitle").<Label>getNode("Label").setText(Workspace.getSM().gamemode);
 		find("Level").<Label>getNode("Label").setText("Level " + Workspace.getSM().difficulty);
+		find("TargetScore").<Text>getNode("Text").setText("Target:\n " + (50 + (Workspace.getSM().difficulty - 1) * 10) + " Points");
+		Rectangle square = new Rectangle(30,30);
+		square.setFill(Color.WHITESMOKE);
+		find("PlayPause").<Button>getNode("Button").setGraphic(square);
+		showGrid();
+	}
+	
+	public void playPause(){
+		Polygon triangle = new Polygon(0, 0, 0, 30, 20, 15);
+		triangle.setFill(Color.WHITESMOKE);
+		Rectangle square = new Rectangle(30,30);
+		square.setFill(Color.WHITESMOKE);
+		if(paused)
+			showGrid();
+		else
+			hideGrid();
+		paused = !paused;
+	}
+	
+	public void quitPause(){
+		hideGrid();
+		quitPaused = paused;
+		paused = true;
+		
+	}
+	
+	public void quitResume(){
+		paused = !quitPaused;
+		playPause();
+	}
+	
+	private void hideGrid(){
+		((BuzzGrid)find("GameGrid")).setVisible(false);
+	}
+	
+	private void showGrid(){
+		((BuzzGrid)find("GameGrid")).setVisible(true);
 	}
 }

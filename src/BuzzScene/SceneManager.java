@@ -63,4 +63,8 @@ public class SceneManager {
 	public void setDifficulty(int value){
 		difficulty = value;
 	}
+	
+	public String getGamemode(){
+		return gamemode;
+	}
 }

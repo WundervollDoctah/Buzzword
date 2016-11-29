@@ -13,6 +13,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.TextAlignment;
+import ui.YesNoCancelDialogSingleton;
 
 //@author Jeremy Chu
 
@@ -43,10 +44,19 @@ public class LevelSelect extends BuzzScene {
 		super.load();
 		find("GamemodeTitle").<Label>getNode("Label").setText(Workspace.getSM().gamemode);
 		BuzzObject home = find("Button2");
+		((BuzzGrid)find("LevelSelect")).reloadLevels();
 		home.setY(150);
 		home.<Button>getNode("Button").setText("Home");
 		home.<Button>getNode("Button").setOnAction(e -> {
-			Workspace.getSM().loadScene(Workspace.getSM().getHome());
+			if(Workspace.getSM().getGameplay() == Workspace.getSM().getScene()){
+				YesNoCancelDialogSingleton.getSingleton().show("Exit Game", "This will exit the game. Are you sure?");
+				String result = YesNoCancelDialogSingleton.getSingleton().getSelection();
+				if(result.equals(YesNoCancelDialogSingleton.YES)){
+					Workspace.getSM().loadScene(Workspace.getSM().getHome());
+				}
+			}
+			else
+				Workspace.getSM().loadScene(Workspace.getSM().getHome());
 		});
 	}
 	

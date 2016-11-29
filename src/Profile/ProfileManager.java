@@ -11,6 +11,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 
+import BuzzScene.Home;
 import components.AppDataComponent;
 import components.AppFileComponent;
 
@@ -23,6 +24,7 @@ public class ProfileManager implements AppFileComponent{
 	private final char[] ENCRYPT_ALPHABET = new String("0123456789abcdefghijklmnopqrstuvwxyz").toCharArray();
 	private final String USERNAME = "username";
 	private final String PASSWORD = "password";
+	private final String GAMEMODE = "gamemode";
 	
 	public ProfileManager(){
 		loadedProfile = null;
@@ -44,6 +46,14 @@ public class ProfileManager implements AppFileComponent{
 				generator.writeString(username);
 				generator.writeFieldName(PASSWORD);
 				generator.writeString(encryptedPass);
+				generator.writeFieldName(GAMEMODE);
+				generator.writeStartObject();
+				for(int i = 1; i < Home.GAMEMODES.length; i++){
+					generator.writeFieldName(Home.GAMEMODES[i]);
+					generator.writeNumber(1);
+				}
+				generator.writeEndObject();
+				generator.writeEndObject();
 			}
 			loadedProfile = new Profile();
 			loadedProfile.username = username;
@@ -81,7 +91,24 @@ public class ProfileManager implements AppFileComponent{
 	                    parser.nextToken();
 	                    System.out.println(parser.getText());
 	                    if(runAmazingEncryption(password).equals(parser.getText()))
-	                    		profileSet = true;
+	                    	profileSet = true;
+	                    else
+	                    	break;
+	                }
+	                if(JsonToken.FIELD_NAME.equals(token) && GAMEMODE.equals(parser.getCurrentName())){
+	                    token = parser.nextToken();
+	                    if(!JsonToken.START_OBJECT.equals(token)){
+	                        break;
+	                    }
+	                    token = parser.nextToken();
+	                    while(!JsonToken.END_OBJECT.equals(token)) {
+	                    	if(JsonToken.FIELD_NAME.equals(token) && loadedProfile.gamemodeLevels.containsKey(parser.getText())){
+	                    		String key = parser.getText();
+	                    		token = parser.nextToken();
+	                    		loadedProfile.gamemodeLevels.replace(key, (Integer) parser.getNumberValue());
+	                   		}
+	                    	token = parser.nextToken();
+	                    }
 	                }
 				}
 			}

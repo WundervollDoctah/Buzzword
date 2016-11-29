@@ -26,13 +26,14 @@ import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import ui.AppMessageDialogSingleton;
+import ui.YesNoCancelDialogSingleton;
 
 //@author Jeremy Chu
 
 public class Home extends BuzzScene{
 	
 	ArrayList<BuzzObject> profileObjects;
-	
+	public static final String[] GAMEMODES = new String[]{"Select Mode", "English Dictionary", "Places", "Science", "Sanic Memes"};
 	public BuzzObject home = new BuzzObject("Home", new FlowPane(), 100, 20);
 	public BuzzObject profile = new BuzzObject("Profile", new FlowPane(), 200, 20);
 	public BuzzObject levelSelect = new BuzzObject("LevelSelect", new FlowPane(), 300, 20);
@@ -46,7 +47,18 @@ public class Home extends BuzzScene{
 		Button exitB = new Button("X");
 		exitB.setStyle("-fx-base: dimgrey");
 		exitB.setOnAction(e -> {
-			System.exit(0);
+			if(Workspace.getSM().getScene() == Workspace.getSM().getGameplay()){
+				Workspace.getSM().getGameplay().quitPause();
+				YesNoCancelDialogSingleton yn = YesNoCancelDialogSingleton.getSingleton();
+				yn.show("Exit Game", "You have a game in progress, are you sure you want to quit?");
+				String result = yn.getSelection();
+				if(result.equals(YesNoCancelDialogSingleton.YES))
+					System.exit(0);
+				else
+					Workspace.getSM().getGameplay().quitResume();
+			}
+			else
+				System.exit(0);
 		});
 		exit.addNode("Button", exitB);
 		addGlobal(exit);
@@ -55,7 +67,7 @@ public class Home extends BuzzScene{
 		generateSplashScreen();
 		generateLoginScreen();
 		//generateHomeScreen();
-		Button homeB = new Button("Home");
+		/*Button homeB = new Button("Home");
 		homeB.setOnAction(e -> {
 			if(find("GameModeSelect") == null)
 				generateHomeScreen();
@@ -82,7 +94,69 @@ public class Home extends BuzzScene{
 		addGlobal(home);
 		addGlobal(profile);
 		addGlobal(levelSelect);
-		addGlobal(gameplay);
+		addGlobal(gameplay);*/
+	}
+	
+	private void revertToSplash(){
+		btn2Pos = 150;
+		BuzzObject createButton = find("Button1");
+		Button button1 = createButton.<Button>getNode("Button");
+		button1.setText("Create New Profile");
+		button1.setGraphic(null);
+		button1.setOnAction(e -> {
+			loadLogin();
+			find("CreateProfile").<Button>getNode("Button").setVisible(true);
+			find("LoginButton").<Button>getNode("Button").setVisible(false);
+		});
+		if(find("GameModeSelect") != null)
+			find("GameModeSelect").unloadNodes();
+		buzzObjects.remove(find("GameModeSelect"));
+		BuzzObject loginButton = find("Button2");
+		loginButton.setY(btn2Pos);
+		Button login = loginButton.<Button>getNode("Button");
+		login.setText("Login");
+		login.setDisable(false);
+		login.setOnAction(e -> {
+			loadLogin();
+			find("CreateProfile").<Button>getNode("Button").setVisible(false);
+			find("LoginButton").<Button>getNode("Button").setVisible(true);
+		});
+	}
+	
+	private void revertToHome(){
+		unloadLogin();
+		btn2Pos = 200;
+		BuzzObject b1 = find("Button1");
+		Button button1 = (Button)(b1.getNode("Button"));
+		//button1.setText("ShujuLong");
+		button1.setOnAction(e -> {
+			Workspace.getSM().getGameplay().quitPause();
+			YesNoCancelDialogSingleton.getSingleton().show("Logout", "Do you want to log out?");
+			String result = YesNoCancelDialogSingleton.getSingleton().getSelection();
+			if(result.equals(YesNoCancelDialogSingleton.YES)){
+				if(Workspace.getSM().getGameplay() == Workspace.getSM().getScene()){
+					YesNoCancelDialogSingleton.getSingleton().show("Exit Game", "This will exit the game. Are you sure?");
+					result = YesNoCancelDialogSingleton.getSingleton().getSelection();
+					if(result.equals(YesNoCancelDialogSingleton.YES)){
+						Workspace.getSM().loadScene(Workspace.getSM().getHome());
+						revertToSplash();
+					}
+				}
+				Workspace.getSM().loadScene(Workspace.getSM().getHome());
+				revertToSplash();
+			}
+		});
+		buzzObjects.add(find("GamemodeSelect"));
+		checkChoice(find("GamemodeSelect").<ChoiceBox<String>>getNode("ChoiceBox"));
+		//gamemodeSelect.loadNodes();
+		BuzzObject b2 = find("Button2");
+		b2.setY(btn2Pos);
+		Button button2 = b2.<Button>getNode("Button");
+		button2.setText("Start Playing");	
+		button2.setOnAction(e -> {
+			Workspace.getSM().loadScene(Workspace.getSM().getLevelSelect());
+		});
+		button2.setDisable(true);
 	}
 	
 	private void generateSplashScreen(){
@@ -128,9 +202,32 @@ public class Home extends BuzzScene{
 		BuzzObject b1 = find("Button1");
 		Button button1 = (Button)(b1.getNode("Button"));
 		button1.setText("ShujuLong");
+		button1.setOnAction(e -> {
+			Workspace.getSM().getGameplay().quitPause();
+			YesNoCancelDialogSingleton.getSingleton().show("Logout", "Do you want to log out?");
+			String result = YesNoCancelDialogSingleton.getSingleton().getSelection();
+			if(result.equals(YesNoCancelDialogSingleton.YES)){
+				if(Workspace.getSM().getGameplay() == Workspace.getSM().getScene()){
+					YesNoCancelDialogSingleton.getSingleton().show("Exit Game", "This will exit the game. Are you sure?");
+					result = YesNoCancelDialogSingleton.getSingleton().getSelection();
+					if(result.equals(YesNoCancelDialogSingleton.YES)){
+						Workspace.getSM().loadScene(Workspace.getSM().getHome());
+						revertToSplash();
+					}
+					else
+						Workspace.getSM().getGameplay().quitResume();
+				}
+				else{
+					Workspace.getSM().loadScene(Workspace.getSM().getHome());
+					revertToSplash();
+				}
+			}
+			else
+				Workspace.getSM().getGameplay().quitResume();
+		});
 		BuzzObject gamemodeSelect = new BuzzObject("GameModeSelect", new FlowPane(), 100, 150);
 		ChoiceBox<String> cb = new ChoiceBox<>(FXCollections.observableArrayList(
-			"Select Mode", "English Dictionary", "Places", "Science", "Sanic Memes")
+			GAMEMODES)
 		);		
 		cb.setValue("Select Mode");
 		cb.getSelectionModel().selectedItemProperty().addListener(e -> {
@@ -202,9 +299,9 @@ public class Home extends BuzzScene{
 				Workspace.getSM().loadScene(Workspace.getSM().getHome());
 				Button profileButton = find("Button1").<Button>getNode("Button");
 				profileButton.setText(ProfileManager.getProfileManager().getLoadedProfile().getUsername());
-				profileButton.setOnAction(e -> {
+				/*profileButton.setOnAction(e -> {
 					
-				});
+				});*/
 			}
 			else
 				AppMessageDialogSingleton.getSingleton().show("Profile Exists", "Profile already exists");
@@ -237,16 +334,16 @@ public class Home extends BuzzScene{
 						10,5});
 				arrow.setFill(Color.WHITESMOKE);
 				profileButton.setGraphic(arrow);
-				profileButton.setOnAction(e -> {
+				/*profileButton.setOnAction(e -> {
 					
-				});
+				});*/
 			}
 		}
 		catch(IOException ex){
 			ex.printStackTrace();
 		}
 		catch(ProfileException ex){
-			System.out.println(ex.getMessage());;
+			AppMessageDialogSingleton.getSingleton().show("Login Error", ex.getMessage());
 		}
 	}
 	
@@ -261,6 +358,7 @@ public class Home extends BuzzScene{
 
 	@Override
 	public void load() {
+		SceneManager.currentGameState = SceneManager.gameState.home;
 		unloadLogin();
 		for(BuzzObject bz : buzzObjects){
 			bz.loadNodes();
@@ -285,6 +383,8 @@ public class Home extends BuzzScene{
 		for(BuzzObject bz : profileObjects){
 			bz.loadNodes();
 		}
+		find("Username").<TextField>getNode("TextField").clear();
+		find("Password").<TextField>getNode("TextField").clear();
 		loginUp = true;
 	}
 	
@@ -293,6 +393,8 @@ public class Home extends BuzzScene{
 		for(BuzzObject bz : profileObjects){
 			bz.unloadNodes();
 		}
+		if(find("GameModeSelect") == null)
+			find("Button2").<Button>getNode("Button").setDisable(false);
 		loginUp = false;
 	}
 
