@@ -25,7 +25,7 @@ public class LevelSelect extends BuzzScene {
 	}
 	
 	public void GenerateLevelSelect(){
-		BuzzGrid grid = new BuzzGrid("LevelSelect", 450, 300);
+		BuzzGrid grid = new BuzzGrid("LevelSelect", 300, 200);
 		grid.constructLevelSelectGrid(4, 2);
 		buzzObjects.add(grid);
 		BuzzObject gamemodeTitle = new BuzzObject("GamemodeTitle", new FlowPane(), 465, 175);

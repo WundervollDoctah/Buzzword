@@ -184,7 +184,7 @@ public class AppGUI implements AppStyleArbiter {
 
         URL imgDirURL = AppTemplate.class.getClassLoader().getResource(APP_IMAGEDIR_PATH.getParameter());
         if (imgDirURL == null)
-            throw new FileNotFoundException("Image resrouces folder does not exist.");
+            throw new FileNotFoundException("Image resouces folder does not exist.");
         try (InputStream appLogoStream = Files.newInputStream(Paths.get(imgDirURL.toURI()).resolve(propertyManager.getPropertyValue(APP_LOGO)))) {
             primaryStage.getIcons().add(new Image(appLogoStream));
         } catch (URISyntaxException e) {

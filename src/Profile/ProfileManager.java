@@ -34,16 +34,17 @@ public class ProfileManager implements AppFileComponent{
 		// TODO
 		JsonFactory factory = new JsonFactory();
 		System.out.println(username);
+		String encryptedUser = runBestestEncryption(username);
 		String encryptedPass = runAmazingEncryption(password);
 		
 		System.out.println(encryptedPass);
-		File f = new File(username + ".json");
+		File f = new File(encryptedUser + ".json");
 		if(!f.exists()){
 			try(JsonGenerator generator = factory.createGenerator(new FileWriter(f))){
 				generator.writeStartObject();
 				generator.useDefaultPrettyPrinter();
 				generator.writeFieldName(USERNAME);
-				generator.writeString(username);
+				generator.writeString(encryptedUser);
 				generator.writeFieldName(PASSWORD);
 				generator.writeString(encryptedPass);
 				generator.writeFieldName(GAMEMODE);
@@ -71,7 +72,9 @@ public class ProfileManager implements AppFileComponent{
 	}
 	
 	public boolean loadProfile(String username, String password) throws IOException, ProfileException {
-		File f = new File(username + ".json");
+		String encryptedUser = runBestestEncryption(username);
+		System.out.println(encryptedUser);
+		File f = new File(encryptedUser + ".json");
 		loadedProfile = new Profile();
 		boolean profileSet = false;
 		if(f.exists()){			
@@ -85,7 +88,12 @@ public class ProfileManager implements AppFileComponent{
 	                if(JsonToken.FIELD_NAME.equals(token) && USERNAME.equals(parser.getCurrentName())){
 	                    parser.nextToken();
 	                    System.out.println(parser.getText());
-	                    loadedProfile.username = parser.getText();
+	                    if(runBestestEncryption(username).equals(parser.getText())){
+	                    	loadedProfile.username = username;
+	                    	profileSet = true;
+	                    }
+	                    else
+	                    	break;
 	                }
 	                if(JsonToken.FIELD_NAME.equals(token) && PASSWORD.equals(parser.getCurrentName())){
 	                    parser.nextToken();
@@ -153,6 +161,22 @@ public class ProfileManager implements AppFileComponent{
 			}
 		}
 		return encryptedPass;
+	}
+	
+	public String runBestestEncryption(String username){
+		String encryptedUser = "";
+		int hashValue = 0;
+		for(int i = 0; i < username.length(); i++)
+			hashValue += username.charAt(i);
+		for(int i = 0; i < username.length(); i++){
+			int encryptValue = username.charAt(i) * hashValue;
+			while(encryptValue > 0){
+				encryptedUser += ENCRYPT_ALPHABET[(int)((Math.abs(encryptValue / 100.0 - 1.0) * 100) % 36)];
+				encryptValue /= 100;
+			}
+		}
+		return encryptedUser;
+		
 	}
 
 	public Profile getLoadedProfile() {

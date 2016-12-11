@@ -1,12 +1,14 @@
 package BuzzScene;
 
 import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
 
 import BuzzScene.SceneManager.gameState;
 import Buzzword.BuzzGrid;
 import Buzzword.BuzzObject;
 import Buzzword.BuzzScores;
 import gui.Workspace;
+import javafx.animation.AnimationTimer;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.FlowPane;
@@ -25,6 +27,7 @@ public class Gameplay extends BuzzScene {
 	private boolean quitPaused;
 	
 	public Gameplay(){
+		
 		buzzObjects = new ArrayList<>();
 		paused = false;
 		quitPaused = false;
@@ -42,13 +45,13 @@ public class Gameplay extends BuzzScene {
 		BuzzObject time = new BuzzObject("Time", new StackPane(), 675, 125);
 		Text timeLabel = new Text("Time Remaining: 69 seconds");
 		timeLabel.setFill(Color.WHITESMOKE);
-		Rectangle rect1 = new Rectangle(160, 30);
+		Rectangle rect1 = new Rectangle(180, 30);
 		rect1.setFill(Color.GRAY);
 		time.addNode("Rectangle", rect1);
 		time.addNode("Label", timeLabel);
 		buzzObjects.add(time);
 		
-		BuzzGrid grid = new BuzzGrid("GameGrid", 450, 310);
+		BuzzGrid grid = new BuzzGrid("GameGrid", 300, 160);
 		grid.constructGameGrid(4, 4);
 		buzzObjects.add(grid);
 		
@@ -78,8 +81,8 @@ public class Gameplay extends BuzzScene {
 		
 		BuzzObject letters = new BuzzObject("Letters", new StackPane(), 675, 180);
 		Text letterLabel = new Text("S A N I");
-		timeLabel.setFill(Color.WHITESMOKE);
-		Rectangle rect2 = new Rectangle(100, 30);
+		letterLabel.setFill(Color.WHITESMOKE);
+		Rectangle rect2 = new Rectangle(130, 30);
 		rect2.setFill(Color.GRAY);
 		letters.addNode("Rectangle", rect2);
 		letters.addNode("Label", letterLabel);
@@ -94,10 +97,12 @@ public class Gameplay extends BuzzScene {
 		buzzObjects.add(targetRect);
 		
 		BuzzObject targetScore = new BuzzObject("TargetScore", new FlowPane(), 640, 480);
-		Text targetText = new Text("Target:\n " + (50 + (Workspace.getSM().difficulty - 1) * 10) + " Points");
+		Text targetText = new Text("Target:\n " + Workspace.getSM().getTargetScore() + " Points");
 		targetText.setFill(Color.WHITESMOKE);
 		targetScore.addNode("Text", targetText);
 		buzzObjects.add(targetScore);
+		
+		
 	}
 	
 	@Override
@@ -116,11 +121,55 @@ public class Gameplay extends BuzzScene {
 		((BuzzGrid)find("GameGrid")).generateGrid();
 		find("GamemodeTitle").<Label>getNode("Label").setText(Workspace.getSM().gamemode);
 		find("Level").<Label>getNode("Label").setText("Level " + Workspace.getSM().difficulty);
-		find("TargetScore").<Text>getNode("Text").setText("Target:\n " + (50 + (Workspace.getSM().difficulty - 1) * 10) + " Points");
+		find("TargetScore").<Text>getNode("Text").setText("Target:\n " + Workspace.getSM().getTargetScore() + " Points");
 		Rectangle square = new Rectangle(30,30);
 		square.setFill(Color.WHITESMOKE);
 		find("PlayPause").<Button>getNode("Button").setGraphic(square);
 		showGrid();
+		AnimationTimer timer = new AnimationTimer(){
+
+			long time = TimeUnit.SECONDS.toNanos(180);
+			long lastTime = System.nanoTime();
+			Text TimeDisp;
+			
+			public void start(){
+				TimeDisp = find("Time").<Text>getNode("Label");
+				super.start();
+			}
+			
+			@Override
+			public void handle(long now) {
+				// TODO Auto-generated method stub
+				if(!paused){
+					time -= now - lastTime;
+				}
+				long tempTime = TimeUnit.NANOSECONDS.toSeconds(time);
+				if(tempTime <= 0){
+					TimeDisp.setText("Time Remaining: 0 seconds");
+				}
+				else{
+					TimeDisp.setText("Time Remaining: " + tempTime + " seconds");
+				}
+				lastTime = now;
+			}
+			
+		};
+		timer.start();
+		AnimationTimer currentWordView = new AnimationTimer(){
+
+			Text currentWord = find("Letters").<Text>getNode("Label");
+			
+			@Override
+			public void handle(long arg0) {
+				// TODO Auto-generated method stub
+				currentWord.setText(((BuzzGrid)find("GameGrid")).getCurrentWord());
+				if(Workspace.getSM().getGameState() == gameState.gameEnd)
+					stop();
+			}
+			
+		};
+		
+		currentWordView.start();
 	}
 	
 	public void playPause(){
@@ -153,5 +202,11 @@ public class Gameplay extends BuzzScene {
 	
 	private void showGrid(){
 		((BuzzGrid)find("GameGrid")).setVisible(true);
+	}
+	
+	public void addWordScore(String word, int score){
+		BuzzScores.WordScore ws = new BuzzScores.WordScore(word, score);
+		if(word.length() > 0 && !((BuzzScores)find("Scores")).getWords().contains(ws))
+			((BuzzScores)find("Scores")).getWords().add(ws);
 	}
 }

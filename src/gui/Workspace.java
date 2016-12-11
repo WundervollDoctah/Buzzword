@@ -52,4 +52,8 @@ public class Workspace extends AppWorkspaceComponent{
 		return sm;
 	}
 
+	public static AppGUI getGui() {
+		return gui;
+	}
+
 }

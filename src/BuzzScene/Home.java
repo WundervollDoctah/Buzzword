@@ -191,7 +191,7 @@ public class Home extends BuzzScene{
 		login.setAlignment(Pos.CENTER_LEFT);
 		loginButton.addNode("Button", login);
 		addGlobal(loginButton);
-		BuzzGrid grid = new BuzzGrid("SplashGrid", 450, 300);
+		BuzzGrid grid = new BuzzGrid("SplashGrid", 300, 150);
 		grid.constructHomeGrid(4,4);
 		buzzObjects.add(grid);
 	}

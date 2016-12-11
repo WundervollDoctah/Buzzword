@@ -67,4 +67,8 @@ public class SceneManager {
 	public String getGamemode(){
 		return gamemode;
 	}
+	
+	public int getTargetScore(){
+		return 50 + (difficulty - 1) * 5;
+	}
 }
