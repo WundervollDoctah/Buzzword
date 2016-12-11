@@ -46,7 +46,7 @@ public class BuzzScores extends BuzzObject {
 		scoreColumn.setCellValueFactory(new PropertyValueFactory<>("score"));
 		table.getColumns().setAll(wordColumn, scoreColumn);
 		table.setMaxHeight(200);
-		table.setMaxWidth(108);
+		table.setMaxWidth(158);
 		words.add(new WordScore("SANIC", 20));
 		words.add(new WordScore("FAST", 20));
 		words.add(new WordScore("GO", 9));
@@ -66,7 +66,7 @@ public class BuzzScores extends BuzzObject {
 			totalText.setText("Total Score: " + score);
 		}));;
 		totalText.setFill(Color.WHITESMOKE);
-		total.getChildren().addAll(new Rectangle(100, 50), totalText);
+		total.getChildren().addAll(new Rectangle(158, 50), totalText);
 		vBox.getChildren().addAll(table, total);
 		pane.getChildren().add(vBox);
 	}
@@ -99,5 +99,9 @@ public class BuzzScores extends BuzzObject {
 	
 	public ObservableList<WordScore> getWords(){
 		return words;
+	}
+
+	public int getScore() {
+		return score;
 	}
 }

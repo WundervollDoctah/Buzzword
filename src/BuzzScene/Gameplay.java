@@ -9,15 +9,21 @@ import Buzzword.BuzzObject;
 import Buzzword.BuzzScores;
 import gui.Workspace;
 import javafx.animation.AnimationTimer;
+import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
+import javafx.scene.control.cell.ComboBoxListCell;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
+import javafx.scene.text.TextAlignment;
 
 //@author Jeremy Chu
 
@@ -25,10 +31,13 @@ public class Gameplay extends BuzzScene {
 
 	private boolean paused;
 	private boolean quitPaused;
+	private boolean victory;
+	private ArrayList<BuzzObject> endGameObjects;
 	
 	public Gameplay(){
 		
 		buzzObjects = new ArrayList<>();
+		endGameObjects = new ArrayList<>();
 		paused = false;
 		quitPaused = false;
 		generateGameplay();
@@ -102,17 +111,81 @@ public class Gameplay extends BuzzScene {
 		targetScore.addNode("Text", targetText);
 		buzzObjects.add(targetScore);
 		
+		BuzzObject endGamePanel = new BuzzObject("EndGamePanel", new FlowPane(), 0, 0);
+		Rectangle endGameRect = new Rectangle(Workspace.getGui().getAppPane().getWidth(), Workspace.getGui().getAppPane().getHeight());
+		endGameRect.setOpacity(0.5);
+		endGamePanel.addNode("Panel", endGameRect);
+		endGameObjects.add(endGamePanel);
 		
+		BuzzObject endGameBackBox = new BuzzObject("BackBox", new FlowPane(), 300, 50);
+		endGameBackBox.addNode("Rect", new Rectangle(300, 100));
+		endGameObjects.add(endGameBackBox);
+		
+		VBox endGameTextBox = new VBox();
+		endGameTextBox.setAlignment(Pos.CENTER);
+		BuzzObject endGameText = new BuzzObject("EndGameText", endGameTextBox, 450, 100);
+		Text titleText = new Text("Game Over");
+		titleText.setFont(Font.font(48));
+		titleText.setFill(Color.WHITESMOKE);
+		endGameText.addNode("GameOver", titleText);
+		Text victoryText = new Text("You Win!");
+		victoryText.setFont(Font.font(24));
+		victoryText.setFill(Color.WHITESMOKE);
+		victoryText.setTextAlignment(TextAlignment.CENTER);
+		endGameText.addNode("Victory", victoryText);
+		endGameObjects.add(endGameText);
+		
+		VBox endGameBox = new VBox();
+		endGameBox.setAlignment(Pos.CENTER);
+		BuzzObject endGameWordList = new BuzzObject("WordList", endGameBox, 150, 350);
+		Text listText = new Text("Words in the Grid:");
+		listText.setFont(Font.font(20));
+		listText.setFill(Color.WHITESMOKE);
+		endGameWordList.addNode("Text", listText);
+		ListView<String> wordList = new ListView<>();
+		wordList.setItems(((BuzzGrid)find("GameGrid")).getFoundWords());
+		wordList.setMaxHeight(300);
+		wordList.setMinHeight(300);
+		wordList.setMinWidth(100);
+		wordList.setCellFactory(ComboBoxListCell.forListView(((BuzzGrid)find("GameGrid")).getFoundWords()));
+		endGameWordList.addNode("List", wordList);
+		endGameObjects.add(endGameWordList);
+		
+		VBox endGameButtonsBox = new VBox();
+		endGameButtonsBox.setAlignment(Pos.CENTER);
+		endGameButtonsBox.minWidth(120);
+		endGameButtonsBox.setSpacing(10);
+		BuzzObject endGameButtons = new BuzzObject("EndGameButtons", endGameButtonsBox, 450, 400);
+		Button saveAndExit = new Button("Return to Home");
+		saveAndExit.setMinWidth(120);
+		saveAndExit.setStyle("-fx-color : gray");
+		saveAndExit.setOnAction(e ->{
+			Workspace.getSM().loadScene(Workspace.getSM().getHome());
+		});
+		endGameButtons.addNode("Exit", saveAndExit);
+		Button restart = new Button("Replay");
+		restart.setMinWidth(120);
+		restart.setStyle("-fx-color : gray");
+		restart.setOnAction(e -> {
+			unload();
+			load();
+		});
+		endGameButtons.addNode("Replay", restart);
+		endGameObjects.add(endGameButtons);
 	}
 	
 	@Override
 	public void unload(){
 		super.unload();
+		unloadEndGame();
 		paused = false;
 	}
 	
 	@Override
 	public void load(){
+		unloadEndGame();
+		victory = false;
+		((BuzzScores)find("Scores")).getWords().clear();
 		SceneManager.currentGameState = gameState.gameplay;
 		super.load();
 		BuzzObject home = find("Button2");
@@ -128,7 +201,7 @@ public class Gameplay extends BuzzScene {
 		showGrid();
 		AnimationTimer timer = new AnimationTimer(){
 
-			long time = TimeUnit.SECONDS.toNanos(180);
+			long time = TimeUnit.SECONDS.toNanos(3);
 			long lastTime = System.nanoTime();
 			Text TimeDisp;
 			
@@ -140,17 +213,35 @@ public class Gameplay extends BuzzScene {
 			@Override
 			public void handle(long now) {
 				// TODO Auto-generated method stub
+				if(SceneManager.currentGameState != gameState.gameplay)
+					stop();
 				if(!paused){
 					time -= now - lastTime;
 				}
 				long tempTime = TimeUnit.NANOSECONDS.toSeconds(time);
 				if(tempTime <= 0){
 					TimeDisp.setText("Time Remaining: 0 seconds");
+					SceneManager.currentGameState = gameState.gameEnd;
+					if(((BuzzScores)find("Scores")).getScore() > Workspace.getSM().getTargetScore());
+						victory = true;
 				}
 				else{
 					TimeDisp.setText("Time Remaining: " + tempTime + " seconds");
 				}
 				lastTime = now;
+			}
+			
+			public void stop(){
+				super.stop();
+				if(SceneManager.currentGameState == gameState.gameEnd){
+					if(victory){
+						find("EndGameText").<Text>getNode("Victory").setText("You Win!");
+					}
+					else{
+						find("EndGameText").<Text>getNode("Victory").setText("Better Luck Next Time");
+					}
+					loadEndGame();
+				}
 			}
 			
 		};
@@ -170,6 +261,34 @@ public class Gameplay extends BuzzScene {
 		};
 		
 		currentWordView.start();
+	}
+	
+	private void loadEndGame(){
+		for(BuzzObject bz : endGameObjects){
+			bz.loadNodes();
+		}
+	}
+	
+	private void unloadEndGame(){
+		for(BuzzObject bz : endGameObjects){
+			bz.unloadNodes();
+		}
+	}
+	
+	public BuzzObject find(String name){
+		for(BuzzObject bz : buzzObjects){
+			if(bz.getName().equals(name))
+				return bz;
+		}
+		for(BuzzObject bz : endGameObjects){
+			if(bz.getName().equals(name))
+				return bz;
+		}
+		for(BuzzObject bz : globalBuzzObjects){
+			if(bz.getName().equals(name))
+				return bz;
+		}
+		return null;
 	}
 	
 	public void playPause(){

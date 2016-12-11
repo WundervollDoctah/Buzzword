@@ -49,10 +49,14 @@ public class LevelSelect extends BuzzScene {
 		home.<Button>getNode("Button").setText("Home");
 		home.<Button>getNode("Button").setOnAction(e -> {
 			if(Workspace.getSM().getGameplay() == Workspace.getSM().getScene()){
+				Workspace.getSM().getGameplay().quitPause();
 				YesNoCancelDialogSingleton.getSingleton().show("Exit Game", "This will exit the game. Are you sure?");
 				String result = YesNoCancelDialogSingleton.getSingleton().getSelection();
 				if(result.equals(YesNoCancelDialogSingleton.YES)){
 					Workspace.getSM().loadScene(Workspace.getSM().getHome());
+				}
+				else{
+					Workspace.getSM().getGameplay().quitResume();
 				}
 			}
 			else

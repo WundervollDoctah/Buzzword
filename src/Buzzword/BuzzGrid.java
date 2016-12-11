@@ -4,6 +4,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -12,6 +13,7 @@ import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Random;
 import java.util.TreeSet;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
@@ -23,6 +25,8 @@ import Profile.ProfileManager;
 import gui.Workspace;
 import javafx.animation.AnimationTimer;
 import javafx.beans.property.StringProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
@@ -44,6 +48,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.StrokeLineCap;
+import ui.AppMessageDialogSingleton;
 
 //@author Jeremy Chu
 
@@ -52,8 +57,8 @@ public class BuzzGrid extends BuzzObject {
 	private static final int TOTAL_NUMBER_OF_STORED_WORDS    = 330622;
 	private GridPane grid;
 	private char[] alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".toCharArray();
-	private TreeSet<String> dictionary;
-	private ArrayList<String> foundWords;
+	private Hashtable<String, TreeSet<String>> dictionaries;
+	private ObservableList<String> foundWords;
 	private int gridWidth;
 	private int gridHeight;
 	private Canvas canvas;
@@ -75,10 +80,10 @@ public class BuzzGrid extends BuzzObject {
 		grid.setHgap(20);
 		grid.setVgap(20);
 		pane.getChildren().add(grid);
-		dictionary = new TreeSet<>();
+		dictionaries = new Hashtable<>();
 		pathLines = new ArrayList<>();
 		litButtons = new HashSet<>();
-		createDictionary();
+		foundWords = FXCollections.observableList(new ArrayList<>());
 	}
 	
 	public void constructHomeGrid(int width, int height){
@@ -145,6 +150,7 @@ public class BuzzGrid extends BuzzObject {
 	}
 	
 	public void constructGameGrid(int width, int height){
+		createDictionaries();
 		grid.getChildren().clear();
 		double circleRadius = 30;
 		gridWidth = width;
@@ -306,9 +312,10 @@ public class BuzzGrid extends BuzzObject {
 		pathLines.clear();
 		int targetScore =Workspace.getSM().getTargetScore();
 		int maxScore = 0;
+		long time = System.nanoTime();
 		while(maxScore < targetScore){
 			maxScore = 0;
-			foundWords = new ArrayList<>();
+			foundWords.clear();
 			System.out.println("looped");
 			for(Node button : grid.getChildren()){
 				if(button instanceof Button){
@@ -322,10 +329,14 @@ public class BuzzGrid extends BuzzObject {
 				}
 			}
 		}
+		time = System.nanoTime() - time;
+		double milliseconds = time / 1000000.0;
+		System.out.println(milliseconds);
 		Collections.sort(foundWords);
 		try(FileWriter writer = new FileWriter("words_text.txt")){
 			for(String str : foundWords)
 				writer.write(str.toLowerCase() + "\n");
+			writer.write("generation time: " + milliseconds);
 		}
 		catch(IOException e){
 			e.printStackTrace();
@@ -369,7 +380,7 @@ public class BuzzGrid extends BuzzObject {
 	}
 	
 	private boolean checkPossibleWord(String s){
-		String possibleString = dictionary.ceiling(s);
+		String possibleString = dictionaries.get(Workspace.getSM().getGamemode()).ceiling(s);
 		if(possibleString != null && possibleString.contains(s))
 			return true;
 		else
@@ -377,21 +388,31 @@ public class BuzzGrid extends BuzzObject {
 	}
 	
 	private boolean checkIsWord(String s){
-		if(dictionary.contains(s))
+		if(dictionaries.get(Workspace.getSM().getGamemode()).contains(s))
 			return true;
 		else
 			return false;
 	}
 	
-	private void createDictionary(){
-		URL wordsResource = getClass().getClassLoader().getResource("words/sowpods.txt");
-		assert wordsResource != null;
-		try(Stream<String> lines = Files.lines(Paths.get(wordsResource.toURI()))) {
-			lines.forEach(dictionary::add);
-		} 
-		catch (IOException | URISyntaxException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+	private void createDictionaries(){
+		for(String str : Home.GAMEMODES){
+			if(str.equals("Select Mode"))
+				continue;
+			System.out.println(str);
+			TreeSet<String> dictionary = new TreeSet<>();
+			URL wordsResource = getClass().getClassLoader().getResource("words/" + str + ".txt");
+			assert wordsResource != null;
+			try(Stream<String> lines = Files.lines(Paths.get(wordsResource.toURI()))) {
+				lines.forEach(dictionary::add);
+			} 
+			catch (IOException | URISyntaxException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				AppMessageDialogSingleton dialog = AppMessageDialogSingleton.getSingleton();
+				dialog.show("Missing Gamemode", "No dictionary for " + str);
+				System.exit(0);
+			}
+			dictionaries.put(str, dictionary);
 		}
 	}
 	
@@ -526,6 +547,27 @@ public class BuzzGrid extends BuzzObject {
 
 	public String getCurrentWord() {
 		return currentWord;
+	}
+	
+	public ObservableList<String> getFoundWords(){
+		return foundWords;
+	}
+	
+	public void clearAll(){
+		currentWord = "";
+		for(Node b : grid.getChildren())
+			b.setEffect(null);
+		pane.getChildren().removeAll(pathLines);
+		pathLines.clear();
+		pane.getChildren().remove(lineDraw);
+		lineDraw = null;
+		tetherPaths = null;
+		lastButton = null;
+		selectedButtons.clear();
+	}
+	
+	public void displayPaths(String word){
+		
 	}
 	
 	

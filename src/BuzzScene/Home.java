@@ -33,7 +33,7 @@ import ui.YesNoCancelDialogSingleton;
 public class Home extends BuzzScene{
 	
 	ArrayList<BuzzObject> profileObjects;
-	public static final String[] GAMEMODES = new String[]{"Select Mode", "English Dictionary", "Places", "Science", "Sanic Memes"};
+	public static final String[] GAMEMODES = new String[]{"Select Mode", "English Dictionary", "Places", "Science", "Names"};
 	public BuzzObject home = new BuzzObject("Home", new FlowPane(), 100, 20);
 	public BuzzObject profile = new BuzzObject("Profile", new FlowPane(), 200, 20);
 	public BuzzObject levelSelect = new BuzzObject("LevelSelect", new FlowPane(), 300, 20);
