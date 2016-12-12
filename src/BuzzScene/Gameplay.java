@@ -148,6 +148,9 @@ public class Gameplay extends BuzzScene {
 		wordList.setMinHeight(300);
 		wordList.setMinWidth(100);
 		wordList.setCellFactory(ComboBoxListCell.forListView(((BuzzGrid)find("GameGrid")).getFoundWords()));
+		wordList.getSelectionModel().selectedItemProperty().addListener(e -> {
+			((BuzzGrid)find("GameGrid")).displayPaths(wordList.getSelectionModel().getSelectedItem().toLowerCase());
+		});
 		endGameWordList.addNode("List", wordList);
 		endGameObjects.add(endGameWordList);
 		
@@ -155,7 +158,7 @@ public class Gameplay extends BuzzScene {
 		endGameButtonsBox.setAlignment(Pos.CENTER);
 		endGameButtonsBox.minWidth(120);
 		endGameButtonsBox.setSpacing(10);
-		BuzzObject endGameButtons = new BuzzObject("EndGameButtons", endGameButtonsBox, 450, 400);
+		BuzzObject endGameButtons = new BuzzObject("EndGameButtons", endGameButtonsBox, 450, 500);
 		Button saveAndExit = new Button("Return to Home");
 		saveAndExit.setMinWidth(120);
 		saveAndExit.setStyle("-fx-color : gray");

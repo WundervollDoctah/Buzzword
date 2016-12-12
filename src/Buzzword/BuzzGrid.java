@@ -68,7 +68,8 @@ public class BuzzGrid extends BuzzObject {
 	private ArrayList<Line> pathLines;
 	private String currentWord;
 	private HashSet<Button> litButtons;
-	private ArrayList<ArrayList<Button>> tetherPaths; 
+	private ArrayList<ArrayList<Button>> tetherPaths;
+	private AnimationTimer showPaths;
 
 	public BuzzGrid(String name) {
 		this(name, 0, 0);
@@ -83,7 +84,9 @@ public class BuzzGrid extends BuzzObject {
 		dictionaries = new Hashtable<>();
 		pathLines = new ArrayList<>();
 		litButtons = new HashSet<>();
+		tetherPaths = new ArrayList<>();
 		foundWords = FXCollections.observableList(new ArrayList<>());
+		selectedButtons = new ArrayList<>();
 	}
 	
 	public void constructHomeGrid(int width, int height){
@@ -561,13 +564,62 @@ public class BuzzGrid extends BuzzObject {
 		pathLines.clear();
 		pane.getChildren().remove(lineDraw);
 		lineDraw = null;
-		tetherPaths = null;
+		//tetherPaths.clear();
 		lastButton = null;
 		selectedButtons.clear();
 	}
 	
 	public void displayPaths(String word){
-		
+		if(showPaths != null)
+			showPaths.stop();
+		tetherPaths.clear();
+		clearAll();
+		checkPathExists(word);
+		for(Node b : tetherPaths.get(0)){
+			b.setEffect(new DropShadow(30 + 2, Color.LIGHTGREEN));
+		}
+		for(int k = 0; k < tetherPaths.get(0).size() - 1; k++){
+			addTether(tetherPaths.get(0).get(k), tetherPaths.get(0).get(k+1));
+		}
+		if(tetherPaths.size() > 1){
+			showPaths = new AnimationTimer(){
+				long timer = TimeUnit.MILLISECONDS.toNanos(500);
+				long lastSwitch = System.nanoTime();
+				int currentPath = 0;
+				
+				@Override
+				public void start(){
+					super.start();
+				}
+	
+				@Override
+				public void handle(long arg0) {
+					// TODO Auto-generated method stub
+					if(arg0 - lastSwitch >= timer){
+						lastSwitch = arg0;
+						currentPath++;
+						if(currentPath >= tetherPaths.size()){
+							currentPath = 0;
+						}
+						clearAll();
+						for(Button b : tetherPaths.get(currentPath)){
+							b.setEffect(new DropShadow(30 + 2, Color.LIGHTGREEN));
+						}
+						for(int k = 0; k < tetherPaths.get(currentPath).size() - 1; k++){
+							addTether(tetherPaths.get(currentPath).get(k), tetherPaths.get(currentPath).get(k+1));
+						}
+					}
+				}
+				
+				@Override
+				public void stop(){
+					clearAll();
+					super.stop();
+				}
+				
+			};
+			showPaths.start();
+		}
 	}
 	
 	
