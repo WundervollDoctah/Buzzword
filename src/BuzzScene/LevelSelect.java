@@ -43,6 +43,7 @@ public class LevelSelect extends BuzzScene {
 	public void load(){
 		super.load();
 		find("GamemodeTitle").<Label>getNode("Label").setText(Workspace.getSM().gamemode);
+		find("Button1").<Button>getNode("Button").setDisable(true);
 		BuzzObject home = find("Button2");
 		((BuzzGrid)find("LevelSelect")).reloadLevels();
 		home.setY(150);

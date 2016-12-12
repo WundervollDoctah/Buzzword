@@ -108,10 +108,10 @@ public class ProfileManager implements AppFileComponent{
 				generator.writeEndObject();
 				generator.writeEndObject();
 			}
-			loadedProfile.username = username;
 			String deleteName = runBestestEncryption(loadedProfile.getUsername());
 			System.out.println(deleteName);
 			new File(deleteName + ".json").delete();
+			loadedProfile.username = username;
 			return true;
 		}
 		else

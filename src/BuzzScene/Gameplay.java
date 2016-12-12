@@ -35,6 +35,7 @@ public class Gameplay extends BuzzScene {
 	private boolean quitPaused;
 	private boolean victory;
 	private ArrayList<BuzzObject> endGameObjects;
+	private AnimationTimer timer;
 	
 	public Gameplay(){
 		
@@ -112,6 +113,17 @@ public class Gameplay extends BuzzScene {
 		targetText.setFill(Color.WHITESMOKE);
 		targetScore.addNode("Text", targetText);
 		buzzObjects.add(targetScore);
+		
+		BuzzObject replayButton = new BuzzObject("ReplayButton", new FlowPane(), 400, 475);
+		Button replay = new Button("Restart");
+		replay.setMinWidth(120);
+		replay.setStyle("-fx-color : gray");
+		replay.setOnAction(e -> {
+			unload();
+			load();
+		});
+		replayButton.addNode("Button", replay);
+		buzzObjects.add(replayButton);
 		
 		BuzzObject endGamePanel = new BuzzObject("EndGamePanel", new FlowPane(), 0, 0);
 		Rectangle endGameRect = new Rectangle(Workspace.getGui().getAppPane().getWidth(), Workspace.getGui().getAppPane().getHeight());
@@ -193,6 +205,7 @@ public class Gameplay extends BuzzScene {
 		super.unload();
 		unloadEndGame();
 		paused = false;
+		timer.stop();
 	}
 	
 	@Override
@@ -213,9 +226,9 @@ public class Gameplay extends BuzzScene {
 		square.setFill(Color.WHITESMOKE);
 		find("PlayPause").<Button>getNode("Button").setGraphic(square);
 		showGrid();
-		AnimationTimer timer = new AnimationTimer(){
+		timer = new AnimationTimer(){
 
-			long time = TimeUnit.SECONDS.toNanos(3);
+			long time = TimeUnit.SECONDS.toNanos(180);
 			long lastTime = System.nanoTime();
 			Text TimeDisp;
 			
@@ -253,7 +266,8 @@ public class Gameplay extends BuzzScene {
 				if(SceneManager.currentGameState == gameState.gameEnd){
 					if(victory){
 						find("EndGameText").<Text>getNode("Victory").setText("You Win!");
-						ProfileManager.getProfileManager().getLoadedProfile().increaseGamemodeProgress(Workspace.getSM().getGamemode());
+						if(profileManager.getLoadedProfile().getGamemodeProgress(Workspace.getSM().getGamemode()) == Workspace.getSM().getDifficulty())
+							ProfileManager.getProfileManager().getLoadedProfile().increaseGamemodeProgress(Workspace.getSM().getGamemode());
 						try{
 							profileManager.saveProfile(profileManager.getLoadedProfile().getUsername(), profileManager.getLoadedProfile().getPassword());
 						}

@@ -212,6 +212,9 @@ public class Home extends BuzzScene{
 		Button button1 = (Button)(b1.getNode("Button"));
 		button1.setText("ShujuLong");
 		button1.setOnAction(e -> {
+			find("Button1").<Button>getNode("Button").setDisable(true);
+			find("Button2").<Button>getNode("Button").setDisable(true);
+			find("GameModeSelect").<ChoiceBox<String>>getNode("ChoiceBox").setDisable(true);
 			loadProfileViewer();
 			/*Workspace.getSM().getGameplay().quitPause();
 			YesNoCancelDialogSingleton.getSingleton().show("Logout", "Do you want to log out?");
@@ -343,6 +346,9 @@ public class Home extends BuzzScene{
 		Button clb = new Button("X");
 		clb.setStyle("-fx-base: dimgray");
 		clb.setOnAction(e -> {
+			find("Button1").<Button>getNode("Button").setDisable(false);
+			checkChoice(find("GameModeSelect").<ChoiceBox<String>>getNode("ChoiceBox"));
+			find("GameModeSelect").<ChoiceBox<String>>getNode("ChoiceBox").setDisable(false);
 			unloadProfileViewer();
 		});
 		closeViewer.addNode("Button", clb);
@@ -576,6 +582,8 @@ public class Home extends BuzzScene{
 		for(BuzzObject bz : buzzObjects){
 			bz.loadNodes();
 		}
+		BuzzObject b1 = find("Button1");
+		b1.<Button>getNode("Button").setDisable(false);
 		BuzzObject b2 = find("Button2");
 		b2.setY(btn2Pos);
 		Button button2 = (Button)(b2.getNode("Button"));
