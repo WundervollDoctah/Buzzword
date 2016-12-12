@@ -1,5 +1,6 @@
 package BuzzScene;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
@@ -7,6 +8,7 @@ import BuzzScene.SceneManager.gameState;
 import Buzzword.BuzzGrid;
 import Buzzword.BuzzObject;
 import Buzzword.BuzzScores;
+import Profile.ProfileManager;
 import gui.Workspace;
 import javafx.animation.AnimationTimer;
 import javafx.geometry.Pos;
@@ -138,7 +140,7 @@ public class Gameplay extends BuzzScene {
 		VBox endGameBox = new VBox();
 		endGameBox.setAlignment(Pos.CENTER);
 		BuzzObject endGameWordList = new BuzzObject("WordList", endGameBox, 150, 350);
-		Text listText = new Text("Words in the Grid:");
+		Text listText = new Text("Words in the Grid:\n(Select one to see the paths)");
 		listText.setFont(Font.font(20));
 		listText.setFill(Color.WHITESMOKE);
 		endGameWordList.addNode("Text", listText);
@@ -174,6 +176,15 @@ public class Gameplay extends BuzzScene {
 			load();
 		});
 		endGameButtons.addNode("Replay", restart);
+		Button nextLevel = new Button("Next Level");
+		nextLevel.setMinWidth(120);
+		nextLevel.setStyle("-fx-color : gray");
+		nextLevel.setOnAction(e -> {
+			Workspace.getSM().setDifficulty(Workspace.getSM().getDifficulty() + 1);
+			unload();
+			load();
+		});
+		endGameButtons.addNode("NextLevel", nextLevel);
 		endGameObjects.add(endGameButtons);
 	}
 	
@@ -225,7 +236,9 @@ public class Gameplay extends BuzzScene {
 				if(tempTime <= 0){
 					TimeDisp.setText("Time Remaining: 0 seconds");
 					SceneManager.currentGameState = gameState.gameEnd;
-					if(((BuzzScores)find("Scores")).getScore() > Workspace.getSM().getTargetScore());
+					System.out.println(((BuzzScores)find("Scores")).getScore());
+					System.out.println(Workspace.getSM().getTargetScore());
+					if(((BuzzScores)find("Scores")).getScore() >= Workspace.getSM().getTargetScore())
 						victory = true;
 				}
 				else{
@@ -236,12 +249,22 @@ public class Gameplay extends BuzzScene {
 			
 			public void stop(){
 				super.stop();
+				ProfileManager profileManager = ProfileManager.getProfileManager();
 				if(SceneManager.currentGameState == gameState.gameEnd){
 					if(victory){
 						find("EndGameText").<Text>getNode("Victory").setText("You Win!");
+						ProfileManager.getProfileManager().getLoadedProfile().increaseGamemodeProgress(Workspace.getSM().getGamemode());
+						try{
+							profileManager.saveProfile(profileManager.getLoadedProfile().getUsername(), profileManager.getLoadedProfile().getPassword());
+						}
+						catch(IOException ex){
+							ex.printStackTrace();
+						}
+						find("EndGameButtons").<Button>getNode("NextLevel").setDisable(false);
 					}
 					else{
 						find("EndGameText").<Text>getNode("Victory").setText("Better Luck Next Time");
+						find("EndGameButtons").<Button>getNode("NextLevel").setDisable(true);
 					}
 					loadEndGame();
 				}

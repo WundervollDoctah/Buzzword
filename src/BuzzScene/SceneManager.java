@@ -69,6 +69,6 @@ public class SceneManager {
 	}
 	
 	public int getTargetScore(){
-		return 50 + (difficulty - 1) * 5;
+		return 25 + (difficulty - 1) * 5;
 	}
 }

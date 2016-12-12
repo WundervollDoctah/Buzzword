@@ -391,7 +391,7 @@ public class BuzzGrid extends BuzzObject {
 	}
 	
 	private boolean checkIsWord(String s){
-		if(dictionaries.get(Workspace.getSM().getGamemode()).contains(s))
+		if(s.length() > 2 && dictionaries.get(Workspace.getSM().getGamemode()).contains(s))
 			return true;
 		else
 			return false;

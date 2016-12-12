@@ -19,6 +19,7 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
 import javafx.scene.shape.Rectangle;
@@ -38,6 +39,9 @@ public class Home extends BuzzScene{
 	public BuzzObject profile = new BuzzObject("Profile", new FlowPane(), 200, 20);
 	public BuzzObject levelSelect = new BuzzObject("LevelSelect", new FlowPane(), 300, 20);
 	public BuzzObject gameplay = new BuzzObject("Gameplay", new FlowPane(), 400, 20);
+	ArrayList<BuzzObject> profileViewer;
+	ArrayList<BuzzObject> usernameChange;
+	ArrayList<BuzzObject> passwordChange;
 	
 	private boolean loginUp = false;
 	private double btn2Pos = 150;
@@ -64,8 +68,13 @@ public class Home extends BuzzScene{
 		addGlobal(exit);
 		buzzObjects = new ArrayList<>();
 		profileObjects = new ArrayList<>();
+		profileViewer = new ArrayList<>();
+		usernameChange = new ArrayList<>();
+		passwordChange = new ArrayList<>();
 		generateSplashScreen();
 		generateLoginScreen();
+		generatePasswordChanger();
+		generateUsernameChanger();
 		//generateHomeScreen();
 		/*Button homeB = new Button("Home");
 		homeB.setOnAction(e -> {
@@ -203,7 +212,8 @@ public class Home extends BuzzScene{
 		Button button1 = (Button)(b1.getNode("Button"));
 		button1.setText("ShujuLong");
 		button1.setOnAction(e -> {
-			Workspace.getSM().getGameplay().quitPause();
+			loadProfileViewer();
+			/*Workspace.getSM().getGameplay().quitPause();
 			YesNoCancelDialogSingleton.getSingleton().show("Logout", "Do you want to log out?");
 			String result = YesNoCancelDialogSingleton.getSingleton().getSelection();
 			if(result.equals(YesNoCancelDialogSingleton.YES)){
@@ -223,7 +233,7 @@ public class Home extends BuzzScene{
 				}
 			}
 			else
-				Workspace.getSM().getGameplay().quitResume();
+				Workspace.getSM().getGameplay().quitResume();*/
 		});
 		BuzzObject gamemodeSelect = new BuzzObject("GameModeSelect", new FlowPane(), 100, 150);
 		ChoiceBox<String> cb = new ChoiceBox<>(FXCollections.observableArrayList(
@@ -247,6 +257,8 @@ public class Home extends BuzzScene{
 			Workspace.getSM().loadScene(Workspace.getSM().getLevelSelect());
 		});
 		button2.setDisable(true);
+		
+		generateProfileViewer();
 	}
 	
 	private void generateLoginScreen(){
@@ -284,6 +296,207 @@ public class Home extends BuzzScene{
 		});
 		closeLogin.addNode("Button", clb);
 		profileObjects.add(closeLogin);
+	}
+	
+	private void generateProfileViewer(){
+		ProfileManager profileManager = ProfileManager.getProfileManager(); 
+		BuzzObject rectangle = new BuzzObject("ViewerSquare", new FlowPane(), 300, 200);
+		rectangle.addNode("Rectangle", new Rectangle(300, 150));
+		profileViewer.add(rectangle);
+		BuzzObject username = new BuzzObject("ViewerUsername", new FlowPane(), 350, 200);
+		Label usernameText = new Label("Username: ");
+		usernameText.setTextFill(Color.WHITE);
+		username.addNode("Label", usernameText);
+		Text usernameSelf = new Text("\t" + profileManager.getLoadedProfile().getUsername());
+		usernameSelf.setFill(Color.WHITESMOKE);
+		username.addNode("Username", usernameSelf);
+		profileViewer.add(username);
+		BuzzObject gamemodes = new BuzzObject("Gamemodes", new VBox(), 350, 250);
+		Text gamemodesText = new Text("Gamemodes: ");
+		gamemodesText.setFill(Color.WHITE);
+		gamemodes.addNode("GameModes", gamemodesText);
+		for(String str : GAMEMODES){
+			if(!str.equals("Select Mode")){
+				Text gamemodeText = new Text("\t" + str + ": " + profileManager.getLoadedProfile().getGamemodeProgress(str));
+				gamemodeText.setFill(Color.WHITESMOKE);
+				gamemodes.addNode(str, gamemodeText);
+			}
+		}
+		profileViewer.add(gamemodes);
+		BuzzObject createProfile = new BuzzObject("ChangeUserButton", new FlowPane(), 300, 350);
+		Button createProfileButton = new Button("Change Username");
+		createProfileButton.setOnAction(e -> { 
+				unloadProfileViewer();
+				loadChangeUsername();
+			});
+		createProfile.addNode("Button", createProfileButton);
+		profileViewer.add(createProfile);
+		BuzzObject login = new BuzzObject("ChangePassButton", new FlowPane(), 425, 350);
+		Button loginButton = new Button("Change Password");
+		loginButton.setOnAction(e -> {
+				unloadProfileViewer();
+				loadChangePassword(); 
+			});
+		login.addNode("Button", loginButton);
+		profileViewer.add(login);
+		BuzzObject closeViewer = new BuzzObject("CloseViewer", new FlowPane(), 575, 200);
+		Button clb = new Button("X");
+		clb.setStyle("-fx-base: dimgray");
+		clb.setOnAction(e -> {
+			unloadProfileViewer();
+		});
+		closeViewer.addNode("Button", clb);
+		profileViewer.add(closeViewer);
+		
+		BuzzObject logout = new BuzzObject("Logout", new FlowPane(), 550, 350);
+		Button logoutButton = new Button("Logout");
+		logoutButton.setOnAction(e -> {
+			Workspace.getSM().loadScene(Workspace.getSM().getHome());
+			unloadProfileViewer();
+			revertToSplash();
+		});
+		logout.addNode("Button", logoutButton);
+		profileViewer.add(logout);
+	}
+	
+	private void generateUsernameChanger(){
+		ProfileManager.getProfileManager();
+		BuzzObject rectangle = new BuzzObject("UserSquare", new FlowPane(), 300, 200);
+		rectangle.addNode("Rectangle", new Rectangle(300, 100));
+		usernameChange.add(rectangle);
+		
+		BuzzObject username = new BuzzObject("NewUsername", new FlowPane(), 350, 200);
+		Label usernameText = new Label("Username: ");
+		usernameText.setTextFill(Color.WHITE);
+		username.addNode("Label", usernameText);
+		username.addNode("TextField", new TextField());
+		usernameChange.add(username);
+		
+		BuzzObject confirm = new BuzzObject("ConfirmUserButton", new FlowPane(), 450, 300);
+		Button loginButton = new Button("Confirm");
+		loginButton.setOnAction(e -> { 
+				changeUsername(username.<TextField>getNode("TextField").getText());
+				unloadChangeUsername();
+				loadProfileViewer();
+			});
+		confirm.addNode("Button", loginButton);
+		usernameChange.add(confirm);
+		
+		BuzzObject closeLogin = new BuzzObject("CloseUserChange", new FlowPane(), 575, 200);
+		Button clb = new Button("X");
+		clb.setStyle("-fx-base: dimgray");
+		clb.setOnAction(e -> {
+			loadProfileViewer();
+			unloadChangeUsername();
+		});
+		closeLogin.addNode("Button", clb);
+		usernameChange.add(closeLogin);
+	}
+	
+	private void generatePasswordChanger(){
+		ProfileManager.getProfileManager();
+		BuzzObject rectangle = new BuzzObject("PassSquare", new FlowPane(), 300, 200);
+		rectangle.addNode("Rectangle", new Rectangle(300, 100));
+		passwordChange.add(rectangle);
+		BuzzObject oldPassword = new BuzzObject("OldPassword", new FlowPane(), 350, 200);
+		Label oldPasswordText = new Label("Old Password: ");
+		oldPasswordText.setTextFill(Color.WHITE);
+		oldPassword.addNode("Label", oldPasswordText);
+		oldPassword.addNode("TextField", new PasswordField());
+		passwordChange.add(oldPassword);
+		BuzzObject newPassword = new BuzzObject("NewPassword", new FlowPane(), 350, 250);
+		Label newPasswordText = new Label("New Password: ");
+		newPasswordText.setTextFill(Color.WHITE);
+		newPassword.addNode("Label", newPasswordText);
+		newPassword.addNode("TextField", new PasswordField());
+		passwordChange.add(newPassword);
+		BuzzObject createProfile = new BuzzObject("Confirm", new FlowPane(), 350, 300);
+		Button createProfileButton = new Button("Confirm");
+		createProfileButton.setOnAction(e -> {
+			changePass(oldPassword, newPassword);
+			unloadChangePassword();
+			loadProfileViewer();
+			});
+		createProfile.addNode("Button", createProfileButton);
+		passwordChange.add(createProfile);
+		BuzzObject closeLogin = new BuzzObject("CloseWindow", new FlowPane(), 575, 200);
+		Button clb = new Button("X");
+		clb.setStyle("-fx-base: dimgray");
+		clb.setOnAction(e -> {
+			unloadChangePassword();
+			loadProfileViewer();
+		});
+		closeLogin.addNode("Button", clb);
+		passwordChange.add(closeLogin);
+	}
+	
+	private void changePass(BuzzObject oldPassword, BuzzObject newPassword) {
+	// TODO Auto-generated method stub
+		ProfileManager profileManager = ProfileManager.getProfileManager();
+		if(oldPassword.<PasswordField>getNode("TextField").getText().equals(profileManager.getLoadedProfile().getPassword())){
+			try{
+				profileManager.saveProfile(profileManager.getLoadedProfile().getUsername(), newPassword.<PasswordField>getNode("TextField").getText());
+			}
+			catch(IOException ex){
+				ex.printStackTrace();
+			}
+		}
+		else{
+			AppMessageDialogSingleton.getSingleton().show("Old Password Invalid", "Your old password is not the correct one");
+		}
+	}
+	
+	private void changeUsername(String username){
+		ProfileManager profileManager = ProfileManager.getProfileManager();
+		try{
+			if(!profileManager.renameProfile(username))
+				AppMessageDialogSingleton.getSingleton().show("Error changing Username", "There was a Problem changing the Username");
+		}
+		catch(IOException ex){
+			ex.printStackTrace();
+		}
+	}
+	
+	private void loadProfileViewer(){
+		for(BuzzObject bz : profileViewer){
+			bz.loadNodes();
+		}
+		find("ViewerUsername").<Text>getNode("Username").setText("\t" + ProfileManager.getProfileManager().getLoadedProfile().getUsername());
+		for(String str : GAMEMODES){
+			if(find("Gamemodes") != null)
+				if(!str.equals("Select Mode"))
+					find("Gamemodes").<Text>getNode(str).setText("\t" + str + ": " + ProfileManager.getProfileManager().getLoadedProfile().getGamemodeProgress(str));
+		}
+	}
+	
+	private void unloadProfileViewer(){
+		for(BuzzObject bz : profileViewer){
+			bz.unloadNodes();
+		}
+	}
+	
+	private void loadChangeUsername(){
+		for(BuzzObject bz : usernameChange){
+			bz.loadNodes();
+		}
+	}
+	
+	private void unloadChangeUsername(){
+		for(BuzzObject bz : usernameChange){
+			bz.unloadNodes();
+		}
+	}
+	
+	private void loadChangePassword(){
+		for(BuzzObject bz : passwordChange){
+			bz.loadNodes();
+		}
+	}
+	
+	private void unloadChangePassword(){
+		for(BuzzObject bz : passwordChange){
+			bz.unloadNodes();
+		}
 	}
 	
 	private void createProfile(){
@@ -416,10 +629,23 @@ public class Home extends BuzzScene{
 			if(bz.getName().equals(name))
 				return bz;
 		}
+		for(BuzzObject bz : profileViewer){
+			if(bz.getName().equals(name))
+				return bz;
+		}
+		for(BuzzObject bz : usernameChange){
+			if(bz.getName().equals(name))
+				return bz;
+		}
+		for(BuzzObject bz : passwordChange){
+			if(bz.getName().equals(name))
+				return bz;
+		}
 		for(BuzzObject bz : globalBuzzObjects){
 			if(bz.getName().equals(name))
 				return bz;
 		}
+		
 		return null;
 	}
 

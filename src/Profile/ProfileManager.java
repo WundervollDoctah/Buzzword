@@ -58,6 +58,7 @@ public class ProfileManager implements AppFileComponent{
 			}
 			loadedProfile = new Profile();
 			loadedProfile.username = username;
+			loadedProfile.password = password;
 			return true;
 		}
 		else{
@@ -69,6 +70,80 @@ public class ProfileManager implements AppFileComponent{
 	public void saveData(AppDataComponent data, Path filePath) throws IOException {
 		// TODO Auto-generated method stub
 		
+	}
+	
+	public boolean deleteProfile(String username){
+		String encryptedUser = runBestestEncryption(username);
+		File f = new File(encryptedUser + ".json");
+		if(f.exists()){
+			f.delete();
+			return true;
+		}
+		return false;
+	}
+	
+	public boolean renameProfile(String username) throws IOException{
+		JsonFactory factory = new JsonFactory();
+		System.out.println(username);
+		String encryptedUser = runBestestEncryption(username);
+		String encryptedPass = runAmazingEncryption(loadedProfile.password);
+		
+		System.out.println(encryptedPass);
+		System.out.println(encryptedUser);
+		File f = new File(encryptedUser + ".json");
+		if(!f.exists()){
+			try(JsonGenerator generator = factory.createGenerator(new FileWriter(f))){
+				generator.writeStartObject();
+				generator.useDefaultPrettyPrinter();
+				generator.writeFieldName(USERNAME);
+				generator.writeString(encryptedUser);
+				generator.writeFieldName(PASSWORD);
+				generator.writeString(encryptedPass);
+				generator.writeFieldName(GAMEMODE);
+				generator.writeStartObject();
+				for(int i = 1; i < Home.GAMEMODES.length; i++){
+					generator.writeFieldName(Home.GAMEMODES[i]);
+					generator.writeNumber(loadedProfile.getGamemodeProgress(Home.GAMEMODES[i]));
+				}
+				generator.writeEndObject();
+				generator.writeEndObject();
+			}
+			loadedProfile.username = username;
+			String deleteName = runBestestEncryption(loadedProfile.getUsername());
+			System.out.println(deleteName);
+			new File(deleteName + ".json").delete();
+			return true;
+		}
+		else
+			return false;
+	}
+	
+	public void saveProfile(String username, String password) throws IOException{
+		JsonFactory factory = new JsonFactory();
+		System.out.println(username);
+		String encryptedUser = runBestestEncryption(username);
+		String encryptedPass = runAmazingEncryption(password);
+		
+		System.out.println(encryptedPass);
+		File f = new File(encryptedUser + ".json");
+		try(JsonGenerator generator = factory.createGenerator(new FileWriter(f))){
+			generator.writeStartObject();
+			generator.useDefaultPrettyPrinter();
+			generator.writeFieldName(USERNAME);
+			generator.writeString(encryptedUser);
+			generator.writeFieldName(PASSWORD);
+			generator.writeString(encryptedPass);
+			generator.writeFieldName(GAMEMODE);
+			generator.writeStartObject();
+			for(int i = 1; i < Home.GAMEMODES.length; i++){
+				generator.writeFieldName(Home.GAMEMODES[i]);
+				generator.writeNumber(loadedProfile.getGamemodeProgress(Home.GAMEMODES[i]));
+			}
+			generator.writeEndObject();
+			generator.writeEndObject();
+		}
+		loadedProfile.username = username;
+		loadedProfile.password = password;
 	}
 	
 	public boolean loadProfile(String username, String password) throws IOException, ProfileException {
@@ -98,8 +173,10 @@ public class ProfileManager implements AppFileComponent{
 	                if(JsonToken.FIELD_NAME.equals(token) && PASSWORD.equals(parser.getCurrentName())){
 	                    parser.nextToken();
 	                    System.out.println(parser.getText());
-	                    if(runAmazingEncryption(password).equals(parser.getText()))
+	                    if(runAmazingEncryption(password).equals(parser.getText())){
+	                    	loadedProfile.password = password;
 	                    	profileSet = true;
+	                    }
 	                    else
 	                    	break;
 	                }
